@@ -1,7 +1,7 @@
 import os
 
 from pathlib import Path
-import secret
+from . import secret
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
