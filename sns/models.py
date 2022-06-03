@@ -5,6 +5,7 @@ BaseUserManager, AbstractBaseUser, PermissionsMixin
 
 class UserManager(BaseUserManager):
 
+    # 普通のアカウントを作成する際に用いられる
     def create_user(self, email, password=None):
         if not email:
             raise ValueError('メールアドレスを入力してください')
@@ -15,6 +16,7 @@ class UserManager(BaseUserManager):
         user.save(using=self._db)
         return user
 
+    # スーパーユーザのアカウントを作成する際に用いられる
     def create_superuser(self, email, password=None):
         user = self.model(
             email=email,
@@ -25,7 +27,7 @@ class UserManager(BaseUserManager):
         user.is_active = True
         user.is_superuser = True
         user.is_admin = True
-        user.save(using=self_db)
+        user.save(using=self._db)
         return user
 
 

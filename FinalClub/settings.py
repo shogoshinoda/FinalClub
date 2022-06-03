@@ -22,6 +22,8 @@ INSTALLED_APPS = [
     'sns'
 ]
 
+AUTH_USER_MODEL = 'sns.Users'
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -84,7 +86,7 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
     {
-        'NAME': 'sns.password_validation.CustomValidator',
+        'NAME': 'sns.validators.CustomValidator',
     },
 ]
 
