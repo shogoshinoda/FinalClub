@@ -5,6 +5,7 @@ import os
 from django.db import models
 from django.contrib.auth.models import (BaseUserManager, AbstractBaseUser, PermissionsMixin)
 from django.urls import reverse_lazy
+from django.dispatch import receiver
 
 
 # ユーザマネージャー
@@ -83,15 +84,6 @@ class UserActivateTokens(models.Model):
         db_table = 'user_activate_tokens'
 
 
-def dir_path_name(instance, filename, dirname):
-    date_time = datetime.now()  # 現在の時刻を取得
-    date_dir = date_time.strftime('%Y/%m/%d')  # 年/月/日のフォーマットの作成
-    time_stamp = date_time.strftime('%H-%M-%S')  # 時-分-秒のフォーマットを作成
-    new_filename = time_stamp + filename  # 実際のファイル名と結合
-    dir_path = os.path.join(dirname, date_dir, new_filename)  # 階層構造にする
-    return dir_path
-
-
 # プロフィールのマネージャー
 class UserProfilesManager(models.Manager):
     def filter_by_profile(self, user_id):
@@ -101,9 +93,9 @@ class UserProfilesManager(models.Manager):
 # プロフィール
 class UserProfiles(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid4(), editable=False)
-    username = models.CharField(db_index=True, max_length=150, unique=True)
-    nickname = models.CharField(max_length=150)
-    user_icon = models.FileField(upload_to=dir_path_name(dirname='user_icon'))
+    user_id = models.CharField(db_index=True, max_length=150, unique=True)
+    username = models.CharField(max_length=150)
+    user_icon = models.FileField(upload_to='user_icon/%Y/%m/%d/')
     user = models.OneToOneField(
         Users, on_delete=models.CASCADE
     )
@@ -129,15 +121,57 @@ class Boards(models.Model):
     user = models.ForeignKey(
         Users, on_delete=models.CASCADE
     )
-    picture1 = models.FileField(upload_to=dir_path_name(dirname='boards'),null=True, blank=True)
-    picture2 = models.FileField(upload_to=dir_path_name(dirname='boards'), null=True, blank=True)
-    picture3 = models.FileField(upload_to=dir_path_name(dirname='boards'), null=True, blank=True)
-    picture4 = models.FileField(upload_to=dir_path_name(dirname='boards'), null=True, blank=True)
-    picture5 = models.FileField(upload_to=dir_path_name(dirname='boards'), null=True, blank=True)
-    picture6 = models.FileField(upload_to=dir_path_name(dirname='boards'), null=True, blank=True)
-    picture7 = models.FileField(upload_to=dir_path_name(dirname='boards'), null=True, blank=True)
-    picture8 = models.FileField(upload_to=dir_path_name(dirname='boards'), null=True, blank=True)
-    picture9 = models.FileField(upload_to=dir_path_name(dirname='boards'), null=True, blank=True)
-    picture10 = models.FileField(upload_to=dir_path_name(dirname='boards'), null=True, blank=True)
+    picture1 = models.FileField(upload_to='board_pictures/%Y/%m/%d/', null=True, blank=True)
+    picture2 = models.FileField(upload_to='board_pictures/%Y/%m/%d/', null=True, blank=True)
+    picture3 = models.FileField(upload_to='board_pictures/%Y/%m/%d/', null=True, blank=True)
+    picture4 = models.FileField(upload_to='board_pictures/%Y/%m/%d/', null=True, blank=True)
+    picture5 = models.FileField(upload_to='board_pictures/%Y/%m/%d/', null=True, blank=True)
+    picture6 = models.FileField(upload_to='board_pictures/%Y/%m/%d/', null=True, blank=True)
+    picture7 = models.FileField(upload_to='board_pictures/%Y/%m/%d/', null=True, blank=True)
+    picture8 = models.FileField(upload_to='board_pictures/%Y/%m/%d/', null=True, blank=True)
+    picture9 = models.FileField(upload_to='board_pictures/%Y/%m/%d/', null=True, blank=True)
+    picture10 = models.FileField(upload_to='board_pictures/%Y/%m/%d/', null=True, blank=True)
+    description = models.TextField(max_length=200, null=True, brank=True)
+    create_at = models.DateTimeField(default=datetime.now())
+    update_at = models.DateTimeField(default=datetime.now())
 
+    objects = BoardsManager()
+
+    class Meta:
+        db_table = 'boards'
+
+
+# データが削除されたらmediaのboards_pictureが消える
+@receiver(models.signals.post_delete, sender=Boards)
+def delete_picture(sender, instance, **kwargs):
+    for i in range(1, 11):
+        db_name = 'picture' + str(i)
+        if instance.db_name:
+            if os.path.isfile(instance.db_name.path):
+                os.remove(instance.db_name.path)
+
+
+# follow Manager
+class FollowFollowerUserManager(models.Manager):
+
+    def count_follow(self, follow_user):
+        return self.filter(follow_user=follow_user).all().count()
+
+    def count_follower(self, follower_user):
+        return self.filter(follower_user=follower_user).all().count()
+
+
+# follow
+class FollowFollowerUser(models.Model):
+    follow_user = models.ForeignKey(
+        Users, on_delete=models.CASCADE
+    )
+    follower_user = models.ForeignKey(
+        Users, on_delete=models.CASCADE
+    )
+
+    objects = FollowFollowerUserManager
+
+    class Meta:
+        db_table = 'follow_follower_user'
 
