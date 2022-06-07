@@ -6,7 +6,7 @@ from django.contrib.auth.forms import ReadOnlyPasswordHashField
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 
-from .models import Users, UserProfiles
+from .models import Users, UserProfiles, Boards
 
 User = get_user_model()
 
@@ -101,12 +101,8 @@ class ProfileForm(forms.ModelForm):
         fields = ['user_id', 'username', 'user_icon', 'introduction']
 
 
-
-
-
-
 # 提示版作成フォーム
-class BordForm(forms.ModelForm):
+class BordsForm(forms.ModelForm):
     picture1 = forms.FileField(label='')
     picture2 = forms.FileField(label='')
     picture3 = forms.FileField(label='')
@@ -117,5 +113,33 @@ class BordForm(forms.ModelForm):
     picture8 = forms.FileField(label='')
     picture9 = forms.FileField(label='')
     picture10 = forms.FileField(label='')
+    description = forms.CharField(label='コメント', widget=forms.Textarea(attrs={'rows': 4, 'cols': 15}))
+
+    class Meta:
+        model = Boards
+        fields = ['picture1', 'picture2', 'picture3', 'picture4', 'picture5',
+                  'picture6', 'picture7', 'picture8', 'picture9', 'picture10',
+                  'description']
+
+    def save(self, commit=True):
+        boards = super().save(commit=False)
+        boards.create_at = datetime.now()
+        boards.update_at = datetime.now()
+        boards.save()
+        return boards
+
+
+# 掲示板更新フォーム
+class BoardsUpdateForm(forms.ModelForm):
+
+    class Meta:
+        models = Boards
+        fields = ['description']
+
+    def save(self, *args, **kwargs):
+        boards = super(BoardsUpdateForm, self).save(commit=False)
+        boards.update_at = datetime.now()
+        boards.save()
+        return boards
 
 
