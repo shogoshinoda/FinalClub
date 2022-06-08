@@ -6,7 +6,7 @@ from django.db import models
 from django.contrib.auth.models import (BaseUserManager, AbstractBaseUser, PermissionsMixin)
 from django.urls import reverse_lazy
 from django.dispatch import receiver
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, post_delete
 
 
 # ユーザマネージャー
@@ -141,6 +141,7 @@ def create_user_affiliation(sender, instance, **kwargs):
 
 # プロフィールのマネージャー
 class UserProfilesManager(models.Manager):
+
     def filter_by_profile(self, user_id):
         return self.filter(user_id=user_id).first()
 
@@ -164,6 +165,7 @@ class UserProfiles(models.Model):
 
 # 提示版のマネージャー
 class BoardsManager(models.Manager):
+
     def filter_by_boards(self, user_id):
         return self.filter(user_id=user_id).all()
 
@@ -197,7 +199,7 @@ class Boards(models.Model):
 
 
 # データが削除されたらmediaのboards_pictureが消える
-@receiver(models.signals.post_delete, sender=Boards)
+@receiver(post_delete, sender=Boards)
 def delete_picture(sender, instance, **kwargs):
     for i in range(1, 11):
         db_name = 'picture' + str(i)
@@ -208,7 +210,10 @@ def delete_picture(sender, instance, **kwargs):
 
 # 掲示板コメント
 class BoardsComments(models.Model):
-    boards = models.ForeignKey(
+    user = models.ForeignKey(
+        Users, on_delete=models.CASCADE
+    )
+    board = models.ForeignKey(
         Boards, on_delete=models.CASCADE
     )
     comment = models.TextField(max_length=100)
@@ -236,6 +241,7 @@ class FollowFollowerUser(models.Model):
     follower_user = models.ForeignKey(
         Users, on_delete=models.CASCADE
     )
+    create_at = models.DateTimeField(default=datetime.now())
 
     objects = FollowFollowerUserManager
 
