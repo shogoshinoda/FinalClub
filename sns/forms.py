@@ -6,7 +6,8 @@ from django.contrib.auth.forms import ReadOnlyPasswordHashField
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 
-from .models import Users, UserProfiles, Boards
+from .models import (Users, UserProfiles, Boards,
+                     BoardsComments, DMMessages)
 
 User = get_user_model()
 
@@ -101,8 +102,19 @@ class ProfileForm(forms.ModelForm):
         fields = ['user_id', 'username', 'user_icon', 'introduction']
 
 
+# プロフィール更新フォーム
+class UpdateProfileForm(forms.ModelForm):
+    username = forms.CharField(label='ユーザ名')
+    user_icon = forms.FileField(label='ユーザアイコン')
+    introduction = forms.CharField(label='自己紹介', widget=forms.Textarea(attrs={'rows': 4, 'cols': 15}))
+
+    class Meta:
+        model = UserProfiles
+        fields = ['username', 'user_icon', 'introduction']
+
+
 # 提示版作成フォーム
-class BordsForm(forms.ModelForm):
+class BoardsForm(forms.ModelForm):
     picture1 = forms.FileField(label='')
     picture2 = forms.FileField(label='')
     picture3 = forms.FileField(label='')
@@ -131,6 +143,7 @@ class BordsForm(forms.ModelForm):
 
 # 掲示板更新フォーム
 class BoardsUpdateForm(forms.ModelForm):
+    description = forms.CharField(label='コメント', widget=forms.Textarea(attrs={'rows': 4, 'cols': 15}))
 
     class Meta:
         models = Boards
@@ -141,5 +154,24 @@ class BoardsUpdateForm(forms.ModelForm):
         boards.update_at = datetime.now()
         boards.save()
         return boards
+
+
+# 提示版コメントフォーム
+class BoardsCommentForm(forms.ModelForm):
+    comment = forms.CharField(label='コメント', widget=forms.Textarea(attrs={'rows': 4, 'cols': 15}))
+
+    class Meta:
+        models = BoardsComments
+        fields = ['comment']
+
+
+# DMメッセージフォーム
+class DMMessageForm(forms.ModelForm):
+    message = forms.CharField()
+
+    class Meta:
+        models = DMMessages
+        fields = ['message']
+
 
 
