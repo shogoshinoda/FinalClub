@@ -200,7 +200,7 @@ class BoardsComments(models.Model):
     boards = models.ForeignKey(
         Boards, on_delete=models.CASCADE
     )
-    comment = models.CharField(max_length=100)
+    comment = models.TextField(max_length=100)
     create_at = models.DateTimeField(default=datetime.now())
 
     class Meta:
@@ -230,3 +230,30 @@ class FollowFollowerUser(models.Model):
 
     class Meta:
         db_table = 'follow_follower_user'
+
+
+# dm
+class DMBox(models.Model):
+    user = models.ForeignKey(
+        Users, on_delete=models.CASCADE
+    )
+    partner = models.ForeignKey(
+        Users, on_delete=models.CASCADE
+    )
+    create_at = models.DateTimeField(default=datetime.now())
+
+    class Meta:
+        db_tabel = 'dm_box'
+
+
+# dmの内容
+class DMMessages(models.Model):
+    dm_box = models.ForeignKey(
+        DMBox, on_delete=models.CASCADE
+    )
+    message = models.TextField()
+    sender = models.IntegerField()
+    create_at = models.DateTimeField(default=datetime.now())
+
+    class Meta:
+        db_table = 'dm_message'
