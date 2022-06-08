@@ -274,3 +274,35 @@ class DMMessages(models.Model):
 
     class Meta:
         db_table = 'dm_message'
+
+
+# 招待コードマネージャー
+class UserInviteTokenManager(models.Manager):
+
+    # 招待コードを発行できるかどうかを判定
+    def can_publish_invite_token(self, user):
+        count = self.filter(user=user).all().count
+        if count >= 2:
+            return False
+        return True
+
+    # 招待コードを発行
+    def publish_invite_token(self, user):
+        user_invite_token = self.model(
+            user=user,
+            token=str(uuid4()),
+            available=True
+        )
+        user_invite_token.save()
+
+
+# 招待コード
+class UserInviteToken(models.Model):
+    user = models.ForeignKey(
+        Users, on_delete=models.CASCADE
+    )
+    invite_token = models.UUIDField(db_index=True)
+    available = models.BooleanField()
+
+    class Meta:
+        db_table = 'invite_token'
