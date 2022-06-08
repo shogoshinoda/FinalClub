@@ -6,6 +6,7 @@ from django.db import models
 from django.contrib.auth.models import (BaseUserManager, AbstractBaseUser, PermissionsMixin)
 from django.urls import reverse_lazy
 from django.dispatch import receiver
+from django.db.models.signals import post_save
 
 
 # ユーザマネージャー
@@ -73,7 +74,7 @@ class UserActivateTokenManager(models.Manager):
 class UserActivateTokens(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid4(), editable=False)
     token = models.UUIDField(db_index=True)
-    expired_at = models.DateTimeField(default=datetime.now()+timedelta(hours=1))
+    expired_at = models.DateTimeField(default=datetime.now() + timedelta(hours=1))
     user = models.ForeignKey(
         'Users', on_delete=models.CASCADE
     )
@@ -82,6 +83,49 @@ class UserActivateTokens(models.Model):
 
     class Meta:
         db_table = 'user_activate_tokens'
+
+
+# 学生情報
+class UserAffiliation(models.Model):
+    user = models.OneToOneField(
+        'User', on_delete=models.CASCADE
+    )
+    year_of_admission = models.CharField(max_length=5)
+    department = models.CharField(max_length=10)
+    course = models.CharField(max_length=20)
+
+    class Meta:
+        db_table = 'user_affiliation'
+
+
+# メールから学部学科を検出する
+def detective_affiliation(email):
+    departments = {'00': '所属なし', '01': '法', '02': '経営', '03': '経済', '04': '理工',
+                   '05': '農', '07': '都市情報', '08': '人間', '09': '薬', '10': '外国語',
+                   '12': '情報工'}
+    courses = {'00': '識別不要', '01': '法', '11': '経営', '12': '国際経営', '21': '経済',
+               '22': '産業社会', '40': '数学', '42': '電気電子工学', '43': '材料機能工学', '44': '応用化学',
+               '45': '機械工学', '46': '交通機械工学', '47': 'メカトロニクス工学', '48': '社会基盤デザイン工学',
+               '49': '環境創造工学', '50': '建築', '61': '生物資源', '62': '応用生物化学', '63': '生物環境科学',
+               '81': '都市情報', '91': '人間', '73': '薬', '95': '国際英語', '05': '情報工学'}
+    year = email[:2]
+    department = departments[email[2:4]]
+    course = courses[email[4:6]]
+    return year, department, course
+
+
+# 学生情報作成
+@receiver(post_save, sender=Users)
+def create_user_affiliation(sender, instance, **kwargs):
+    user = instance
+    year_of_admission, department, course = detective_affiliation(user.email)
+    user_affiliation = UserAffiliation(
+        user=instance,
+        year_of_admission=year_of_admission,
+        department=department,
+        course=course
+    )
+    user_affiliation.save()
 
 
 # プロフィールのマネージャー
@@ -151,6 +195,18 @@ def delete_picture(sender, instance, **kwargs):
                 os.remove(instance.db_name.path)
 
 
+# 掲示板コメント
+class BoardsComments(models.Model):
+    boards = models.ForeignKey(
+        Boards, on_delete=models.CASCADE
+    )
+    comment = models.CharField(max_length=100)
+    create_at = models.DateTimeField(default=datetime.now())
+
+    class Meta:
+        db_table = 'boards_comments'
+
+
 # follow Manager
 class FollowFollowerUserManager(models.Manager):
 
@@ -174,4 +230,3 @@ class FollowFollowerUser(models.Model):
 
     class Meta:
         db_table = 'follow_follower_user'
-
