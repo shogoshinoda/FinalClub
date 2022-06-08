@@ -52,8 +52,8 @@ class Users(AbstractBaseUser, PermissionsMixin):
 
     objects = UserManager()
 
-    def get_absolute_url(self):
-        return reverse_lazy('sns:temporary')
+    #def get_absolute_url(self):
+        #return reverse_lazy('sns:temporary')
 
 
 # ユーザ登録トークンマネージャー
@@ -157,7 +157,7 @@ class UserProfiles(models.Model):
     )
     introduction = models.TextField(null=True, blank=True, max_length=255)
 
-    objects = UserProfilesManager
+    objects = UserProfilesManager()
 
     class Meta:
         db_table = 'profiles'
@@ -243,7 +243,7 @@ class FollowFollowerUser(models.Model):
     )
     create_at = models.DateTimeField(default=datetime.now())
 
-    objects = FollowFollowerUserManager
+    objects = FollowFollowerUserManager()
 
     class Meta:
         db_table = 'follow_follower_user'
@@ -303,6 +303,8 @@ class UserInviteToken(models.Model):
     )
     invite_token = models.UUIDField(db_index=True)
     available = models.BooleanField()
+
+    objects = UserActivateTokenManager()
 
     class Meta:
         db_table = 'invite_token'
