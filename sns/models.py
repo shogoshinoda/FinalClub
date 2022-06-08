@@ -85,6 +85,17 @@ class UserActivateTokens(models.Model):
         db_table = 'user_activate_tokens'
 
 
+# トークンの発行
+@receiver(post_save, sender=Users)
+def publish_token(sender, instance, **kwargs):
+    user_activate_token = UserActivateTokens(
+        user=instance,
+        token=str(uuid4()),
+        expired_at=datetime.now() + timedelta(days=1)
+    )
+    user_activate_token.save()
+
+
 # 学生情報
 class UserAffiliation(models.Model):
     user = models.OneToOneField(
