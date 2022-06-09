@@ -208,6 +208,28 @@ def delete_picture(sender, instance, **kwargs):
                 os.remove(instance.db_name.path)
 
 
+# 提示版いいねマネージャー
+class BoardsLikesManager(models.Manager):
+
+    def count_like(self, board):
+        return self.filter(board=board).all().count()
+
+
+# 提示版いいね
+class BoardsLikes(models.Model):
+    board = models.ForeignKey(
+        Boards, on_delete=models.CASCADE
+    )
+    user = models.ForeignKey(
+        Users, on_delete=models.CASCADE
+    )
+
+    objects = BoardsLikesManager
+
+    class Meta:
+        db_table = 'boards_likes'
+
+
 # 掲示板コメント
 class BoardsComments(models.Model):
     user = models.ForeignKey(

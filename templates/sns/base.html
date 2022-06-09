@@ -1,10 +1,57 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ja">
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'assets/css/base.css %}">
 </head>
 <body>
-
+  <header>
+      <div class="container">
+          <div class="left-header">
+              <div class="icon"></div>
+              <div class="search"></div>
+          </div>
+          <div class="right-header">
+              <div class="nav__wrap">
+                  <ul class="nav__lists">
+                      <li class="nav__list">
+                          <a href="">通知</a>
+                          <ul class="dropdown--lists">
+                              <li class="dropdown-list"></li>
+                              <li class="dropdown-list"></li>
+                              <li class="dropdown-list"></li>
+                              <li class="dropdown-list"></li>
+                              <li class="dropdown-list"></li>
+                          </ul>
+                      </li>
+                      <li class="nav__list">
+                          <a href="">ホームへ</a>
+                      </li>
+                      <li class="nav__list">
+                          <a href="">ルームへ</a>
+                      </li>
+                      <li class="nav__list">
+                          <a href="">良問へ</a>
+                      </li>
+                      <li class="nav__list">
+                          <a href="">アイコン</a>
+                          <ul class="dropdown--lists">
+                              <li class="dropdown--list">
+                                  <a href="">プロフィール</a>
+                              </li>
+                              <li class="dropdown--list">
+                                  <a href="">設定</a>
+                              </li>
+                              <li class="dropdown--list">
+                                  <a href="">ログアウト</a>
+                              </li>
+                          </ul>
+                      </li>
+                  </ul>
+              </div>
+          </div>
+      </div>
+  </header>
 </body>
-</html>
