@@ -1,0 +1,126 @@
+nav {
+    background-color: white;
+    order: 0;
+    padding: 0;
+}
+.none {
+    display: none;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+.header-wrap {
+    margin: 0 auto;
+    height: 70px;
+    background-color: white;
+}
+.header-contain {
+    display: flex;
+    border-bottom: 1px solid rgb(219, 219,219);
+}
+
+/*アイコン部分*/
+.icon {
+    width: 15%;
+    background-color: white;
+    height: 70px;
+}
+.icon-img {
+    text-align: center;
+    top: 50%;
+    font-size: x-large;
+    padding-top: 16px;
+}
+.icon-img a {
+    color: inherit;
+}
+
+/*検索部分*/
+.search {
+    width: 35%;
+    background-color: white;
+    height: 70px;
+}
+.search-box {
+    text-align: center;
+    padding-top: 16px;
+}
+.search-box input {
+    width: 84%;
+    height: 40px;
+    border-radius: 10px;
+    background-color: rgb(239,239,239);
+    border: white;
+}
+.box {
+    height: 21px;
+    width: 25px;
+    position: relative;
+    transform: rotate(45deg);
+    left: 45%;
+    background-color: black;
+    top: 6px;
+}
+.search-result {
+    height: 340px;
+    top: -7px;
+    border-radius: 2%;
+    position: relative;
+    background-color: black;
+    overflow: scroll;
+}
+
+.result-content {
+    padding-top: 19px;
+}
+.result-user {
+    background-color: pink;
+    display: flex;
+    margin: 0 4%;
+    text-align: center;
+    justify-content: center;
+}
+.user-icon {
+    background-color: deeppink;
+    width: 10%;
+}
+.user-info {
+    background-color: crimson;
+    width: 90%;
+}
+
+
+/*通知部分*/
+.notice {
+    width: 12.5%;
+    background-color: rgb(109, 135, 48);
+    height: 70px;
+}
+.home {
+    width: 12.5%;
+    background-color: rgb(68, 18, 55);
+    height: 70px;
+}
+.room {
+    width: 12.5%;
+    background-color: rgb(0, 0, 0);
+    height: 70px;
+}
+.questions {
+    width: 12.5%;
+}
+.my-icon {
+    width: 12.5%;
+    background-color: rgb(101, 39, 155);
+    height: 70px;
+}
