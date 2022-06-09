@@ -7,7 +7,9 @@ nav {
     display: none;
 }
 
-
+html {
+    background-color: rgb(250, 250, 250);
+}
 
 
 
@@ -47,7 +49,7 @@ nav {
 
 /*検索部分*/
 .search {
-    width: 35%;
+    width: 40%;
     background-color: white;
     height: 70px;
 }
@@ -68,35 +70,63 @@ nav {
     position: relative;
     transform: rotate(45deg);
     left: 45%;
-    background-color: black;
+    background-color: white;
+    z-index: 4;
+    border: 1px solid rgb(219, 219, 219);
     top: 6px;
 }
 .search-result {
-    height: 340px;
-    top: -7px;
+    height: 360px;
+    top: -6px;
     border-radius: 2%;
     position: relative;
-    background-color: black;
+    background-color: white;
     overflow: scroll;
+    border-left: 1px solid rgb(219, 219,219);
+    border-bottom: 1px solid rgb(219, 219,219);
+    border-right: 1px solid rgb(219, 219,219);
+    z-index: 5;
 }
 
 .result-content {
-    padding-top: 19px;
+    padding-top: 23px;
 }
 .result-user {
-    background-color: pink;
     display: flex;
     margin: 0 4%;
     text-align: center;
     justify-content: center;
+    height: 57px;
 }
 .user-icon {
-    background-color: deeppink;
-    width: 10%;
+    width: 56px;
+    border-radius: 50%;
+    border: 1px solid rgb(219, 219, 219);
 }
 .user-info {
-    background-color: crimson;
-    width: 90%;
+    width: 85%;
+    text-align: left;
+    padding-left: 5px;
+}
+.user-id {
+    color: rgb(38, 38, 38);
+    font-weight: 600;
+    font-size: 14px;
+    line-height: 18px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI',
+                Roboto, Helvetica, Arial, sans-serif;
+    padding-top: 7px;
+}
+.user-name {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: rgb(142, 142, 142);
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 18px;
+    padding-top: 5px;
 }
 
 

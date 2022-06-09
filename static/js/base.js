@@ -7,7 +7,7 @@ window.addEventListener('DOMContentLoaded', function (){
     const search_result = document.getElementById("search_result");
     const search_box = document.getElementById("search_box");
 
-    // イベントリスナーでイベント「change]を登録
+    // イベントリスナーでイベント「change]を登録　検索ボックスから外れたとき
     search_input.addEventListener("change", function (){
         search_box.classList.add("none");
         search_result.classList.add("none");
@@ -15,14 +15,14 @@ window.addEventListener('DOMContentLoaded', function (){
         console.log(this.value);
     });
 
-    // イベントリスナーでイベント[input]を登録
+    // イベントリスナーでイベント[input]を登録　検索ボックスに入力したとき
     search_input.addEventListener("input", function (){
         search_box.classList.remove("none");
         search_result.classList.remove("none");
         console.log(this.value);
     });
 
-    // イベントリスナーでイベント「クリック」を登録
+    // イベントリスナーでイベント「クリック」を登録　初めに検索ボックスにクリックしたとき
         search_input.addEventListener("click", function (){
             if (!this.value) {
                 console.log("aaaa");
