@@ -330,3 +330,11 @@ class UserInviteToken(models.Model):
 
     class Meta:
         db_table = 'invite_token'
+
+
+# 通知
+class Notifications(models.Model):
+    user = models.ForeignKey(
+        Users, on_delete=models.CASCADE
+    )
+

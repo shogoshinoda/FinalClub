@@ -31,6 +31,45 @@ window.addEventListener('DOMContentLoaded', function (){
     });
 
 
+    const notice_icon = document.getElementById("notice-icon");
+    // const notice_icon_img = document.getElementById("notice-icon-img");
+    const notice_box = document.getElementById("notice-box");
+    const notice_wrap = document.getElementById("notice-wrap");
+    // const notice = document.getElementById("notice");
+    // const style_notice_box = document.defaultView.getComputedStyle(notice_box, null).display;
+    // //
+    notice_icon.addEventListener("click", function () {
+        notice_box.classList.toggle("none");
+        notice_wrap.classList.toggle("none");
+    });
+    // // notice_wrap.addEventListener("blur", function () {
+    // //         notice_box.classList.add("none");
+    // //         notice_wrap.classList.add("none");
+    // // });
+    // //
+    // notice.addEventListener("mouseenter", function () {
+    //     notice_icon_img.src = "/static/img/base/notifications_t.svg";
+    //     notice_box.classList.remove("none");
+    //     notice_wrap.classList.remove("none");
+    // });
+    // notice_box.addEventListener("mouseleave", function () {
+    //     notice_icon_img.src = "/static/img/base/notifications.svg";
+    //     notice_box.classList.add("none");
+    //     notice_wrap.classList.add("none");
+    // });
 
+
+
+    // notice_icon.addEventListener("click", function (){
+    //     notice_icon_img.src = "/static/img/base/notifications_t.svg";
+    // });
+    const my_icon_contain = document.getElementById("my-icon-contain");
+    const my_icon_box = document.getElementById("my-icon-box");
+    const my_icon_description = document.getElementById("my-icon-description");
+
+    my_icon_contain.addEventListener("click", function () {
+       my_icon_box.classList.toggle("none");
+       my_icon_description.classList.toggle("none");
+    });
 
 });
