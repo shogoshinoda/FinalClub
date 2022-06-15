@@ -13,11 +13,11 @@ from django.db.models.signals import post_save, post_delete
 class UserManager(BaseUserManager):
 
     # 普通のアカウントを作成する際に用いられる
-    def create_user(self, id, email, password=None):
+    def create_user(self, username, email, password=None):
         if not email:
             raise ValueError('メールアドレスを入力してください')
         user = self.model(
-            id=id,
+            username=username,
             email=email
         )
         user.set_password(password)
@@ -25,9 +25,9 @@ class UserManager(BaseUserManager):
         return user
 
     # スーパーユーザのアカウントを作成する際に用いられる
-    def create_superuser(self, id, email, password=None):
+    def create_superuser(self, username, email, password=None):
         user = self.model(
-            id=id,
+            username=username,
             email=email,
             password=password
         )
@@ -42,18 +42,15 @@ class UserManager(BaseUserManager):
 
 # ユーザ登録
 class Users(AbstractBaseUser, PermissionsMixin):
-    id = models.UUIDField(primary_key=True, default=uuid4(), editable=False)
+    username = models.CharField(max_length=150)
     email = models.EmailField(max_length=40, unique=True)
     is_active = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['email']
+    REQUIRED_FIELDS = ['username']
 
     objects = UserManager()
-
-    #def get_absolute_url(self):
-        #return reverse_lazy('sns:temporary')
 
 
 # ユーザ登録トークンマネージャー
@@ -72,7 +69,6 @@ class UserActivateTokenManager(models.Manager):
 
 # ユーザ登録トークン
 class UserActivateTokens(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid4(), editable=False)
     token = models.UUIDField(db_index=True)
     expired_at = models.DateTimeField(default=datetime.now() + timedelta(hours=1))
     user = models.ForeignKey(
@@ -99,7 +95,7 @@ def publish_token(sender, instance, **kwargs):
 # 学生情報
 class UserAffiliation(models.Model):
     user = models.OneToOneField(
-        'User', on_delete=models.CASCADE
+        'Users', on_delete=models.CASCADE
     )
     year_of_admission = models.CharField(max_length=5)
     department = models.CharField(max_length=10)
@@ -148,12 +144,10 @@ class UserProfilesManager(models.Manager):
 
 # プロフィール
 class UserProfiles(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid4(), editable=False)
-    user_id = models.CharField(db_index=True, max_length=150, unique=True)
     username = models.CharField(max_length=150)
     user_icon = models.FileField(upload_to='user_icon/%Y/%m/%d/')
     user = models.OneToOneField(
-        Users, on_delete=models.CASCADE
+        'Users', on_delete=models.CASCADE
     )
     introduction = models.TextField(null=True, blank=True, max_length=255)
 
@@ -176,7 +170,7 @@ class BoardsManager(models.Manager):
 # 提示版
 class Boards(models.Model):
     user = models.ForeignKey(
-        Users, on_delete=models.CASCADE
+        'Users', on_delete=models.CASCADE
     )
     picture1 = models.FileField(upload_to='board_pictures/%Y/%m/%d/', null=True, blank=True)
     picture2 = models.FileField(upload_to='board_pictures/%Y/%m/%d/', null=True, blank=True)
@@ -188,7 +182,7 @@ class Boards(models.Model):
     picture8 = models.FileField(upload_to='board_pictures/%Y/%m/%d/', null=True, blank=True)
     picture9 = models.FileField(upload_to='board_pictures/%Y/%m/%d/', null=True, blank=True)
     picture10 = models.FileField(upload_to='board_pictures/%Y/%m/%d/', null=True, blank=True)
-    description = models.TextField(max_length=200, null=True, brank=True)
+    description = models.TextField(max_length=200, null=True, blank=True)
     create_at = models.DateTimeField(default=datetime.now())
     update_at = models.DateTimeField(default=datetime.now())
 
@@ -218,10 +212,10 @@ class BoardsLikesManager(models.Manager):
 # 提示版いいね
 class BoardsLikes(models.Model):
     board = models.ForeignKey(
-        Boards, on_delete=models.CASCADE
+        'Boards', on_delete=models.CASCADE
     )
     user = models.ForeignKey(
-        Users, on_delete=models.CASCADE
+        'Users', on_delete=models.CASCADE
     )
 
     objects = BoardsLikesManager
@@ -233,10 +227,10 @@ class BoardsLikes(models.Model):
 # 掲示板コメント
 class BoardsComments(models.Model):
     user = models.ForeignKey(
-        Users, on_delete=models.CASCADE
+        'Users', on_delete=models.CASCADE
     )
     board = models.ForeignKey(
-        Boards, on_delete=models.CASCADE
+        'Boards', on_delete=models.CASCADE
     )
     comment = models.TextField(max_length=100)
     create_at = models.DateTimeField(default=datetime.now())
@@ -258,10 +252,10 @@ class FollowFollowerUserManager(models.Manager):
 # follow
 class FollowFollowerUser(models.Model):
     follow_user = models.ForeignKey(
-        Users, on_delete=models.CASCADE
+        'Users', on_delete=models.CASCADE, related_name='follow_user'
     )
     follower_user = models.ForeignKey(
-        Users, on_delete=models.CASCADE
+        'Users', on_delete=models.CASCADE, related_name='follower_user'
     )
     create_at = models.DateTimeField(default=datetime.now())
 
@@ -274,15 +268,15 @@ class FollowFollowerUser(models.Model):
 # dm
 class DMBox(models.Model):
     user = models.ForeignKey(
-        Users, on_delete=models.CASCADE
+        'Users', on_delete=models.CASCADE, related_name='user'
     )
     partner = models.ForeignKey(
-        Users, on_delete=models.CASCADE
+        'Users', on_delete=models.CASCADE, related_name='partner'
     )
     create_at = models.DateTimeField(default=datetime.now())
 
     class Meta:
-        db_tabel = 'dm_box'
+        db_table = 'dm_box'
 
 
 # dmの内容
@@ -321,7 +315,7 @@ class UserInviteTokenManager(models.Manager):
 # 招待コード
 class UserInviteToken(models.Model):
     user = models.ForeignKey(
-        Users, on_delete=models.CASCADE
+        'Users', on_delete=models.CASCADE
     )
     invite_token = models.UUIDField(db_index=True)
     available = models.BooleanField()
@@ -334,7 +328,62 @@ class UserInviteToken(models.Model):
 
 # 通知
 class Notifications(models.Model):
-    user = models.ForeignKey(
-        Users, on_delete=models.CASCADE
+    receiver = models.ForeignKey(
+        'Users', on_delete=models.CASCADE, related_name='receiver'
     )
+    action_user = models.ForeignKey(
+        'Users', on_delete=models.CASCADE, related_name='action_user'
+    )
+    action_id = models.IntegerField()
+    board = models.ForeignKey(
+        'Boards', on_delete=models.CASCADE, null=True, blank=True
+    )
+
+    class Meta:
+        db_table = 'notifications'
+
+
+@receiver(post_save, sender=FollowFollowerUserManager)
+def create_follow_notification(sender, instance, **kwargs):
+    user = instance
+    follower_user = user.follower
+    follow_user = user.follow
+    follow_notification = Notifications(
+        user=follower_user,
+        action_user=follow_user,
+        action_id=1
+    )
+    follow_notification.save()
+
+
+@receiver(post_save, sender=BoardsLikes)
+def create_like_notification(sender, instance, **kwargs):
+    ins = instance
+    user = ins.board.user
+    action_user = ins.user
+    action_id = 2
+    board = ins.board
+    like_notification = Notifications(
+        user=user,
+        action_user=action_user,
+        action_id=action_id,
+        board=board
+    )
+    like_notification.save()
+
+
+@receiver(post_save, sender=BoardsComments)
+def create_comment_notification(sender, instance, **kwargs):
+    ins = instance
+    user = ins.board.user
+    action_user = ins.user
+    action_id = 3
+    board = ins.board
+    comment_notification = Notifications(
+        user=user,
+        action_user=action_user,
+        action_id=3,
+        board=board
+    )
+    comment_notification.save()
 
