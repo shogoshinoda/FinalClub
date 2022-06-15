@@ -85,9 +85,9 @@ class UserActivateTokens(models.Model):
 @receiver(post_save, sender=Users)
 def publish_token(sender, instance, **kwargs):
     user_activate_token = UserActivateTokens(
-        user=instance,
         token=str(uuid4()),
-        expired_at=datetime.now() + timedelta(days=1)
+        expired_at=datetime.now() + timedelta(days=1),
+        user=instance
     )
     user_activate_token.save()
 
@@ -382,7 +382,7 @@ def create_comment_notification(sender, instance, **kwargs):
     comment_notification = Notifications(
         user=user,
         action_user=action_user,
-        action_id=3,
+        action_id=action_id,
         board=board
     )
     comment_notification.save()

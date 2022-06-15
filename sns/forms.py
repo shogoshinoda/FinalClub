@@ -18,7 +18,7 @@ class UserCreationForm(forms.ModelForm):
     confirm_password = forms.CharField(label='Password再入力', widget=forms.PasswordInput)
 
     class Meta:
-        model = User
+        model = Users
         fields = ('email', 'password')
 
     def clean(self):
@@ -40,7 +40,7 @@ class UserChangeForm(forms.ModelForm):
     password = ReadOnlyPasswordHashField()
 
     class Meta:
-        model = User
+        model = Users
         fields = ('email', 'password', 'is_staff', 'is_active', 'is_superuser')
 
     def clean_password(self):
@@ -50,21 +50,22 @@ class UserChangeForm(forms.ModelForm):
 
 # ユーザ登録
 class SignInForm(forms.ModelForm):
+    username = forms.CharField(label='ユーザ名', required=True)
     email = forms.EmailField(label='メールアドレス', required=True)
     password = forms.CharField(label='パスワード', widget=forms.PasswordInput)
     confirm_password = forms.CharField(label='パスワード(確認)', widget=forms.PasswordInput)
 
     class Meta:
         model = Users
-        fields = ['email', 'password', 'confirm_password']
+        fields = ['username', 'email', 'password', 'confirm_password']
 
     # パスワードの確認
-    def clean_password(self):
+    def clean_confirm_password(self):
         password = self.cleaned_data['password']
         confirm_password = self.cleaned_data['confirm_password']
         if password and confirm_password and password != confirm_password:
             raise forms.ValidationError('パスワードが一致しません')
-        return password
+        return confirm_password
 
     # メールアドレスの確認
     def clean_email(self):
@@ -172,6 +173,3 @@ class DMMessageForm(forms.ModelForm):
     class Meta:
         models = DMMessages
         fields = ['message']
-
-
-
