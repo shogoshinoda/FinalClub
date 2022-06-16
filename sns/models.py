@@ -52,6 +52,9 @@ class Users(AbstractBaseUser, PermissionsMixin):
 
     objects = UserManager()
 
+    def get_absolute_url(self):
+        return reverse_lazy('sns:temporary_regist')
+
 
 # ユーザ登録トークンマネージャー
 class UserActivateTokenManager(models.Manager):
@@ -77,6 +80,7 @@ class UserActivateTokens(models.Model):
 
     objects = UserActivateTokenManager()
 
+
     class Meta:
         db_table = 'user_activate_tokens'
 
@@ -90,6 +94,7 @@ def publish_token(sender, instance, **kwargs):
         user=instance
     )
     user_activate_token.save()
+    print(f'http://127.0.0.1:8000/main_regist/{user_activate_token.token}')
 
 
 # 学生情報
@@ -107,6 +112,8 @@ class UserAffiliation(models.Model):
 
 # メールから学部学科を検出する
 def detective_affiliation(email):
+    if email == 'meijo.sns@gmail.com':
+        return '00', '所属なし', '識別不要'
     departments = {'00': '所属なし', '01': '法', '02': '経営', '03': '経済', '04': '理工',
                    '05': '農', '07': '都市情報', '08': '人間', '09': '薬', '10': '外国語',
                    '12': '情報工'}
@@ -318,7 +325,7 @@ class UserInviteToken(models.Model):
         'Users', on_delete=models.CASCADE
     )
     invite_token = models.UUIDField(db_index=True)
-    available = models.BooleanField()
+    available = models.BooleanField(default=True)
 
     objects = UserActivateTokenManager()
 

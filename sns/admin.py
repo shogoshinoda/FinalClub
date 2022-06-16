@@ -3,6 +3,10 @@ from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth import get_user_model
 from .forms import UserChangeForm, UserCreationForm
 
+from .models import (
+    UserActivateTokens, UserInviteToken, UserProfiles,
+    Boards, FollowFollowerUser, DMBox, Notifications
+)
 User = get_user_model()
 
 
@@ -27,4 +31,10 @@ class CustomizeUserAdmin(UserAdmin):
 
 
 admin.site.register(User, CustomizeUserAdmin)
-# Register your models here.
+admin.site.register(UserActivateTokens)
+admin.site.register(UserInviteToken)
+admin.site.register(UserProfiles)
+admin.site.register(Boards)
+admin.site.register(FollowFollowerUser)
+admin.site.register(DMBox)
+admin.site.register(Notifications)

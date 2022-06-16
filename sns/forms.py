@@ -83,6 +83,15 @@ class SignInForm(forms.ModelForm):
         user.save()
         return user
 
+# 仮登録画面フォーム
+class InviteVerificationForm(forms.Form):
+    invite_user = forms.CharField(label='招待主', required=True)
+    invite_code = forms.UUIDField(label='招待コード',required=True)
+    agree = forms.BooleanField(label='同意',required=True)
+
+
+
+
 
 # ユーザログイン
 class UserLoginForm(forms.Form):
