@@ -1,3 +1,4 @@
+from asyncio import constants
 from datetime import datetime, timedelta
 from uuid import uuid4
 import os
@@ -13,11 +14,10 @@ from django.db.models.signals import post_save, post_delete
 class UserManager(BaseUserManager):
 
     # 普通のアカウントを作成する際に用いられる
-    def create_user(self, username, email, password=None):
+    def create_user(self, email, password=None):
         if not email:
             raise ValueError('メールアドレスを入力してください')
         user = self.model(
-            username=username,
             email=email
         )
         user.set_password(password)
@@ -25,9 +25,8 @@ class UserManager(BaseUserManager):
         return user
 
     # スーパーユーザのアカウントを作成する際に用いられる
-    def create_superuser(self, username, email, password=None):
+    def create_superuser(self, email, password=None):
         user = self.model(
-            username=username,
             email=email,
             password=password
         )
@@ -42,18 +41,16 @@ class UserManager(BaseUserManager):
 
 # ユーザ登録
 class Users(AbstractBaseUser, PermissionsMixin):
-    username = models.CharField(max_length=150)
+    id = models.UUIDField(primary_key=True, default=uuid4(), editable=False)
     email = models.EmailField(max_length=40, unique=True)
     is_active = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['username']
+    REQUIRED_FIELDS = []
 
     objects = UserManager()
 
-    def get_absolute_url(self):
-        return reverse_lazy('sns:temporary_regist')
 
 
 # ユーザ登録トークンマネージャー
@@ -99,8 +96,8 @@ def publish_token(sender, instance, **kwargs):
 
 # 学生情報
 class UserAffiliation(models.Model):
-    user = models.OneToOneField(
-        'Users', on_delete=models.CASCADE
+    user = models.ForeignKey(
+        'Users', on_delete=models.CASCADE       
     )
     year_of_admission = models.CharField(max_length=5)
     department = models.CharField(max_length=10)
@@ -134,10 +131,10 @@ def create_user_affiliation(sender, instance, **kwargs):
     user = instance
     year_of_admission, department, course = detective_affiliation(user.email)
     user_affiliation = UserAffiliation(
-        user=instance,
         year_of_admission=year_of_admission,
         department=department,
-        course=course
+        course=course,
+        user=instance
     )
     user_affiliation.save()
 
@@ -151,7 +148,8 @@ class UserProfilesManager(models.Manager):
 
 # プロフィール
 class UserProfiles(models.Model):
-    username = models.CharField(max_length=150)
+    username = models.CharField(max_length=255, unique=True)
+    nickname = models.CharField(max_length=150)
     user_icon = models.FileField(upload_to='user_icon/%Y/%m/%d/')
     user = models.OneToOneField(
         'Users', on_delete=models.CASCADE

@@ -9,7 +9,6 @@ from django.core.exceptions import ValidationError
 from .models import (Users, UserProfiles, Boards,
                      BoardsComments, DMMessages)
 
-User = get_user_model()
 
 
 # アドミン画面ユーザ作成
@@ -50,14 +49,13 @@ class UserChangeForm(forms.ModelForm):
 
 # ユーザ登録
 class SignInForm(forms.ModelForm):
-    username = forms.CharField(label='ユーザ名', required=True)
     email = forms.EmailField(label='メールアドレス', required=True)
     password = forms.CharField(label='パスワード', widget=forms.PasswordInput)
     confirm_password = forms.CharField(label='パスワード(確認)', widget=forms.PasswordInput)
 
     class Meta:
         model = Users
-        fields = ['username', 'email', 'password', 'confirm_password']
+        fields = ['email', 'password', 'confirm_password']
 
     # パスワードの確認
     def clean_confirm_password(self):

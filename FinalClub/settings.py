@@ -116,7 +116,8 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 LOGOUT_REDIRECT_URL = ''
 
 # 　メール機能設定
-EMAIL_HOST = 'smtp.gamil.com'
+EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_HOST_USER = secret.email_user
 EMAIL_HOST_PASSWORD = secret.email_password
+EMAIL_USE_TLS = True

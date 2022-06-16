@@ -8,9 +8,9 @@
 <div class="container">
   <div class="wrap">
     <h4>新規登録</h4>
-    <form method="POST">
+    <form method="POST" enctype="multipart/form-data">
         {% csrf_token %}
-        {{ form }}
+        {{ signin_form }}
         <input type="submit" class="" value="新規登録">
     </form>
   </div>
