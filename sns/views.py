@@ -1,16 +1,13 @@
 from django.shortcuts import render, redirect
-from django.urls import reverse_lazy
 from django import forms
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.views.generic.edit import CreateView
 from django.views.generic.base import TemplateView
-from django.template import loader
-from django.http import Http404
 from django.core.mail import send_mail
+from django.contrib.auth import authenticate, login
 
 from .models import (Users, UserProfiles, UserAffiliation,
                      UserActivateTokens, UserInviteToken)
-from .forms import SignInForm, InviteVerificationForm
+from .forms import (SignInForm, InviteVerificationForm, LoginForm)
 
 
 # ユーザ登録
@@ -88,9 +85,40 @@ class MainRegistView(TemplateView):
             }
             return render(self.request, 'sns/main_regist.html', context)
 
+# ログイン画面
+class LoginView(TemplateView):
+    template_name = 'sns/login.html'
+    login_form_class = LoginForm
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['login_form'] = self.login_form_class
+        return context
 
-
-
-
-
+    def post(self, request, *args, **kwargs):
+        login_form = self.login_form_class(request.POST or None)
+        if login_form.is_valid():
+            email = request.POST['email']
+            password = request.POST['password']
+            remember = request.POST['remember']
+            if remember:
+                self.request.session.set_expiry(10368000) # ログイン状態保持にチェックがある場合120日ログイン状態保持
+            user = authenticate(email=email, password=password)
+            next_url = request.POST.get('next')
+            if user is not None and user.is_active:
+                login(request, user)
+            else:
+                raise ValueError('メールアドレスもしくはパスワードが間違っています。')
+            try:
+                UserProfiles.objects.get(user_id=self.request.user.id)
+                if next_url:
+                    return redirect(next_url)
+                else:
+                    redirect('sns:home')
+            except:
+                return redirect('sns:create_profile')
+        else:
+            context = {
+                'login_form': login_form
+            }
+            return render(self.request, 'sns/login.html', context)
