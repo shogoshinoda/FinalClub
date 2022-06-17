@@ -2,6 +2,7 @@ from asyncio import constants
 from datetime import datetime, timedelta
 from uuid import uuid4
 import os
+import uuid
 
 from django.db import models
 from django.contrib.auth.models import (BaseUserManager, AbstractBaseUser, PermissionsMixin)
@@ -65,6 +66,15 @@ class UserActivateTokenManager(models.Manager):
         user = user_activate_token.user
         user.is_active = True
         user.save()
+    
+    def create_user_by_token(self, user):
+        activate_token = self.model(
+            token=uuid4(),
+            expired_at=datetime.now() + timedelta(days=1),
+            user=user
+        )
+        activate_token.save()
+        print(f'http://127.0.0.1:8000/main_regist/{activate_token.token}')
 
 
 # ユーザ登録トークン
@@ -82,34 +92,20 @@ class UserActivateTokens(models.Model):
         db_table = 'user_activate_tokens'
 
 
-# トークンの発行
-@receiver(post_save, sender=Users)
-def publish_token(sender, instance, **kwargs):
-    user_activate_token = UserActivateTokens(
-        token=str(uuid4()),
-        expired_at=datetime.now() + timedelta(days=1),
-        user=instance
-    )
-    user_activate_token.save()
-    print(f'http://127.0.0.1:8000/main_regist/{user_activate_token.token}')
-
-
-# 学生情報
-class UserAffiliation(models.Model):
-    user = models.ForeignKey(
-        'Users', on_delete=models.CASCADE       
-    )
-    year_of_admission = models.CharField(max_length=5)
-    department = models.CharField(max_length=10)
-    course = models.CharField(max_length=20)
-
-    class Meta:
-        db_table = 'user_affiliation'
-
+# # トークンの発行
+# @receiver(post_save, sender=Users)
+# def publish_token(sender, instance, **kwargs):
+#     user_activate_token = UserActivateTokens(
+#         token=str(uuid4()),
+#         expired_at=datetime.now() + timedelta(days=1),
+#         user=instance
+#     )
+#     user_activate_token.save()
+#     print(f'http://127.0.0.1:8000/main_regist/{user_activate_token.token}')
 
 # メールから学部学科を検出する
 def detective_affiliation(email):
-    if email == 'meijo.sns@gmail.com':
+    if email == 'meijo.sns@gmail.com' or email == 'syogo1119@outlook.jp':
         return '00', '所属なし', '識別不要'
     departments = {'00': '所属なし', '01': '法', '02': '経営', '03': '経済', '04': '理工',
                    '05': '農', '07': '都市情報', '08': '人間', '09': '薬', '10': '外国語',
@@ -120,23 +116,56 @@ def detective_affiliation(email):
                '49': '環境創造工学', '50': '建築', '61': '生物資源', '62': '応用生物化学', '63': '生物環境科学',
                '81': '都市情報', '91': '人間', '73': '薬', '95': '国際英語', '05': '情報工学'}
     year = email[:2]
-    department = departments[email[2:4]]
-    course = courses[email[4:6]]
+    if email[2:4] in departments:
+        department = departments[email[2:4]]
+    else:
+        department = departments['00']
+    if email[4:6] in courses:
+        course = courses[email[4:6]]
+    else:
+        course = courses['00']
     return year, department, course
 
+# 学生情報マネージャー
+class UserAffiliationManager(models.Manager):
 
-# 学生情報作成
-@receiver(post_save, sender=Users)
-def create_user_affiliation(sender, instance, **kwargs):
-    user = instance
-    year_of_admission, department, course = detective_affiliation(user.email)
-    user_affiliation = UserAffiliation(
-        year_of_admission=year_of_admission,
-        department=department,
-        course=course,
-        user=instance
+    def create_user_affiliation(self, user):
+        year_of_admission, department, course = detective_affiliation(user.email)
+        user_affiliation = UserAffiliation(
+            year_of_admission=year_of_admission,
+            department=department,
+            course=course,
+            user=user
+        )
+        user_affiliation.save()
+
+# 学生情報
+class UserAffiliation(models.Model):
+    user = models.ForeignKey(
+        'Users', on_delete=models.CASCADE       
     )
-    user_affiliation.save()
+    year_of_admission = models.CharField(max_length=5)
+    department = models.CharField(max_length=10)
+    course = models.CharField(max_length=20)
+
+    objects = UserAffiliationManager()
+
+    class Meta:
+        db_table = 'user_affiliation'
+
+
+# # 学生情報作成
+# @receiver(post_save, sender=Users)
+# def create_user_affiliation(sender, instance, **kwargs):
+#     user = instance
+#     year_of_admission, department, course = detective_affiliation(user.email)
+#     user_affiliation = UserAffiliation(
+#         year_of_admission=year_of_admission,
+#         department=department,
+#         course=course,
+#         user=instance
+#     )
+#     user_affiliation.save()
 
 
 # プロフィールのマネージャー
@@ -315,7 +344,22 @@ class UserInviteTokenManager(models.Manager):
             available=True
         )
         user_invite_token.save()
+    
+    def available_false(self, token):
+        user_invite_token = self.filter(
+            invite_token=token
+        ).first()
+        user_invite_token.available = False
+        user_invite_token.save()
 
+@receiver(post_save, sender=Users)
+def create_invite_token(sender, instance, **kwargs):
+    user = instance
+    invite_token = UserInviteToken(
+        user=user,
+        invite_token=uuid4()
+    )
+    invite_token.save()
 
 # 招待コード
 class UserInviteToken(models.Model):
@@ -325,7 +369,7 @@ class UserInviteToken(models.Model):
     invite_token = models.UUIDField(db_index=True)
     available = models.BooleanField(default=True)
 
-    objects = UserActivateTokenManager()
+    objects = UserInviteTokenManager()
 
     class Meta:
         db_table = 'invite_token'

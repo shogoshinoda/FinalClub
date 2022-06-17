@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>本登録画面</title>
+</head>
+<body>
+<div class="container">
+  <div class="wrap">
+    <h4>本登録</h4>
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ invite_verification_form }}
+        <input type="submit" class="" value="新規登録">
+    </form>
+  </div>
+</div>
+
+</body>
+</html>

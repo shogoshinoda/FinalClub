@@ -30,8 +30,8 @@ class SigninView(TemplateView):
             self.form_save(signin_form)
             email = request.POST.get('email')
             user = Users.objects.get(email=email)
-            print(email)
-            print(user)
+            create_user_token = UserActivateTokens.objects.create_user_by_token(user=user)
+            create_user_affiliation = UserAffiliation.objects.create_user_affiliation(user=user)
             user_activate_token = UserActivateTokens.objects.get(user=user)
             subject = '仮登録受付完了'
             message = f'http://127.0.0.1:8000/main_regist/{user_activate_token.token}'
@@ -58,40 +58,36 @@ class TemporaryRegistView(TemplateView):
 # 本登録画面
 class MainRegistView(TemplateView):
     template_name = 'sns/main_regist.html'
+    invite_verification_form_class = InviteVerificationForm
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        invite_verification_form = InviteVerificationForm()
-        context['invite_verification_form'] = invite_verification_form
+        context['invite_verification_form'] = self.invite_verification_form_class
         return context
     
-    def get(self, *args, **kwargs):
-        user = Users.objects.get(id=self.request.user.id)
-        activate_token_user = UserActivateTokens.objects.get(token=self.kwargs.get('token'))
-        if user.id == activate_token_user.user.id:
-            Http404('このページは見つかりません')
-        return super().get(*args, **kwargs)
-
     def post(self, request, *args, **kwargs):
-        invite_verification_form = InviteVerificationForm(request.POST or None)
+        user = UserActivateTokens.objects.get(token=self.kwargs.get('token')).user
+        invite_verification_form = self.invite_verification_form_class(request.POST or None)
         if invite_verification_form.is_valid():
-            invite_user = invite_verification_form.invite_user
-            invite_code = invite_verification_form.invite_code
-            if UserInviteToken.objects.filter(user=invite_user, invite_token=invite_code).exists():
+            invite_user_email = request.POST.get('invite_user')
+            invite_user = Users.objects.get(email=invite_user_email)
+            invite_code = request.POST.get('invite_code')
+            if UserInviteToken.objects.filter(invite_token=invite_code, user=invite_user).exists():
                 user_invite_token = UserInviteToken.objects.get(invite_token=invite_code)
                 if user_invite_token.available:
-                    user_invite_token.available = False
+                    UserInviteToken.objects.available_false(token=invite_code)
                     user_activate_token = UserActivateTokens.objects.activate_user_by_token(self.kwargs.get('token'))
                     return redirect('sns:login')
-            raise forms.ValidationError('招待主または招待コードが異なります。')
+                else:
+                    raise forms.ValidationError('招待コードが有効ではありません。')
+            else:
+                raise forms.ValidationError('招待主または招待コードが異なります。')
+        else:
+            context = {
+                'invite_verification_form': invite_verification_form
+            }
+            return render(self.request, 'sns/main_regist.html', context)
 
-
-
-# ベース
-# class SnsBaseView(LoginRequiredMixin, View):
-
-#     def get(self, request, *args, **kwargs):
-#         user = Users.objects.get(id=self.request.user.id)
 
 
 

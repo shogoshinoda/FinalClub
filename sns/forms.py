@@ -69,6 +69,10 @@ class SignInForm(forms.ModelForm):
     def clean_email(self):
         email = self.cleaned_data['email']
         meijo_email: str = '@ccmailg.meijo-u.ac.jp'
+        student_number = email[:9]
+        print(student_number)
+        if not student_number.isdecimal():
+            raise forms.ValidationError('正しいメールアドレスを入力してください')
         if not re.search(f'{ meijo_email }\Z', email):
             raise forms.ValidationError('名城大学のメールアドレスを入力してください')
         return email
