@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>FC プロフィール作成</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/bootstrap-reboot.css' %}">
+    <link rel="stylesheet" href="{% static 'css/setting.css' %}">
+</head>
+<body>
+<div class="main-container">
+    <div class="main-wrap">
+        <div class="title-container">
+            <div class="title">
+                プロフィール作成
+            </div>
+        </div>
+        <div class="items-wrap">
+        <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        {% if create_profile_form.errors %}
+            <div class="message">
+                {% for error in create_profile_form.user_icon.errors %}
+                    <p>・{{ error }}</p>
+                {% endfor %}
+                {% for error in create_profile_form.username.errors %}
+                    <p>・{{ error }}</p>
+                {% endfor %}
+                {% for error in create_profile_form.nickname.errors %}
+                    <p>・{{ error }}</p>
+                {% endfor %}
+                {% for error in create_profile_form.introduction.errors %}
+                    <p>・{{ error }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+        <div class="items">
+            <div class="right-item">
+                <div class="item-label">
+                    <img src="{% static 'img/base/account_circle.svg' %}" alt="">
+                </div>
+            </div>
+            <div class="left-item">
+                <div class="item-input">
+                    <label class="file-input-label">
+                    <input type="file" name="user_icon" accept="image/*" required id="id_user_icon" value="プロフィール写真">プロフィール写真を追加
+                    </label>
+                </div>
+            </div>
+        </div>
+        <div class="items">
+            <div class="right-item">
+                <div class="item-label">
+                    ユーザネーム
+                </div>
+            </div>
+            <div class="left-item">
+                <div class="item-input">
+                    <input type="text" name="username" required id="id_username" placeholder="ユーザネーム">
+                </div>
+            </div>
+        </div>
+        <div class="items">
+            <div class="right-item">
+                <div class="item-label">
+                    名前
+                </div>
+            </div>
+            <div class="left-item">
+                <div class="item-input">
+                    <input type="text" name="nickname" required id="id_nickname" placeholder="名前">
+                </div>
+            </div>
+        </div>
+        <div class="items">
+            <div class="right-item">
+                <div class="item-label">
+                    自己紹介
+                </div>
+            </div>
+            <div class="left-item">
+                <div class="item-input">
+                    <textarea name="introduction" cols="15" rows="4" required id="id_introduction" placeholder="自己紹介"></textarea>
+                </div>
+            </div>
+        </div>
+        <div class="items">
+            <div class="input">
+                <input type="submit" value="送信する">
+            </div>
+        </div>
+        </form>
+        </div>    
+    </div>
+</div>
+</body>
+</html>
+    

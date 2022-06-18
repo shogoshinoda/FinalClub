@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect
 from django import forms
+from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic.base import TemplateView
 from django.core.mail import send_mail
@@ -8,7 +9,8 @@ from django.contrib import messages
 
 from .models import (Users, UserProfiles, UserAffiliation,
                      UserActivateTokens, UserInviteToken)
-from .forms import (SignInForm, InviteVerificationForm, LoginForm)
+from .forms import (SignInForm, InviteVerificationForm, LoginForm,
+                    ProfileForm)
 
 
 # ユーザ登録
@@ -141,3 +143,43 @@ class LoginView(TemplateView):
                 'login_form': login_form
             }
             return render(self.request, 'sns/login.html', context)
+
+
+#プロフィール作成画面
+class CreateProfileView(LoginRequiredMixin, TemplateView):
+    template_name = 'sns/create_profile.html'
+    create_profile_form_class = ProfileForm
+    login_url = reverse_lazy('sns:login')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['create_profile_form'] = self.create_profile_form_class
+        return context
+
+    def post(self, request, *args, **kwargs):
+        create_profile_form = self.create_profile_form_class(request.POST or None, request.FILES or None)
+        if create_profile_form.is_valid():
+            username = request.POST.get('username')
+            nickname = request.POST.get('nickname')
+            user_icon = request.POST.get('user_icon')
+            user = self.request.user.id
+            introduction = request.POST.get('introduction')
+            self.form_save(username, nickname, user_icon, user, introduction)
+            return redirect('sns:home')
+        else:
+            context = {
+                'create_profile_form': create_profile_form
+            }
+            return render(self.request, 'sns/create_profile.html', context)
+    
+
+    def form_save(username, nickname, user_icon, user, introduction):
+        create_profile = UserProfiles(
+            username=username,
+            nickname=nickname,
+            user_icon=user_icon,
+            user=user, 
+            introduction=introduction
+        )
+        create_profile.save()
+        

@@ -179,7 +179,7 @@ class UserProfilesManager(models.Manager):
 class UserProfiles(models.Model):
     username = models.CharField(max_length=255, unique=True)
     nickname = models.CharField(max_length=150)
-    user_icon = models.FileField(upload_to='user_icon/%Y/%m/%d/')
+    user_icon = models.ImageField(upload_to='user_icon/%Y/%m/%d/')
     user = models.OneToOneField(
         'Users', on_delete=models.CASCADE
     )
@@ -206,16 +206,16 @@ class Boards(models.Model):
     user = models.ForeignKey(
         'Users', on_delete=models.CASCADE
     )
-    picture1 = models.FileField(upload_to='board_pictures/%Y/%m/%d/', null=True, blank=True)
-    picture2 = models.FileField(upload_to='board_pictures/%Y/%m/%d/', null=True, blank=True)
-    picture3 = models.FileField(upload_to='board_pictures/%Y/%m/%d/', null=True, blank=True)
-    picture4 = models.FileField(upload_to='board_pictures/%Y/%m/%d/', null=True, blank=True)
-    picture5 = models.FileField(upload_to='board_pictures/%Y/%m/%d/', null=True, blank=True)
-    picture6 = models.FileField(upload_to='board_pictures/%Y/%m/%d/', null=True, blank=True)
-    picture7 = models.FileField(upload_to='board_pictures/%Y/%m/%d/', null=True, blank=True)
-    picture8 = models.FileField(upload_to='board_pictures/%Y/%m/%d/', null=True, blank=True)
-    picture9 = models.FileField(upload_to='board_pictures/%Y/%m/%d/', null=True, blank=True)
-    picture10 = models.FileField(upload_to='board_pictures/%Y/%m/%d/', null=True, blank=True)
+    picture1 = models.ImageField(upload_to='board_pictures/%Y/%m/%d/', null=True, blank=True)
+    picture2 = models.ImageField(upload_to='board_pictures/%Y/%m/%d/', null=True, blank=True)
+    picture3 = models.ImageField(upload_to='board_pictures/%Y/%m/%d/', null=True, blank=True)
+    picture4 = models.ImageField(upload_to='board_pictures/%Y/%m/%d/', null=True, blank=True)
+    picture5 = models.ImageField(upload_to='board_pictures/%Y/%m/%d/', null=True, blank=True)
+    picture6 = models.ImageField(upload_to='board_pictures/%Y/%m/%d/', null=True, blank=True)
+    picture7 = models.ImageField(upload_to='board_pictures/%Y/%m/%d/', null=True, blank=True)
+    picture8 = models.ImageField(upload_to='board_pictures/%Y/%m/%d/', null=True, blank=True)
+    picture9 = models.ImageField(upload_to='board_pictures/%Y/%m/%d/', null=True, blank=True)
+    picture10 = models.ImageField(upload_to='board_pictures/%Y/%m/%d/', null=True, blank=True)
     description = models.TextField(max_length=200, null=True, blank=True)
     create_at = models.DateTimeField(default=datetime.now())
     update_at = models.DateTimeField(default=datetime.now())

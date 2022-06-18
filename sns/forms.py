@@ -101,9 +101,6 @@ class InviteVerificationForm(forms.Form):
     agree = forms.BooleanField(label='同意',required=True)
 
 
-
-
-
 # ユーザログイン
 class LoginForm(forms.Form):
     email = forms.EmailField(label='メールアドレス')
@@ -113,14 +110,14 @@ class LoginForm(forms.Form):
 
 # プロフィール作成フォーム
 class ProfileForm(forms.ModelForm):
-    user_id = forms.CharField(label='ユーザID')
-    username = forms.CharField(label='ユーザ名')
-    user_icon = forms.FileField(label='ユーザアイコン')
+    username = forms.CharField(label='ユーザネーム')
+    nickname = forms.CharField(label='名前')
+    user_icon = forms.ImageField(label='ユーザアイコン')
     introduction = forms.CharField(label='自己紹介', widget=forms.Textarea(attrs={'rows': 4, 'cols': 15}))
 
     class Meta:
         model = UserProfiles
-        fields = ['user_id', 'username', 'user_icon', 'introduction']
+        fields = ['username', 'nickname', 'user_icon', 'introduction']
 
 
 # プロフィール更新フォーム
