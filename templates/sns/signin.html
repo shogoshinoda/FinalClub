@@ -1,20 +1,63 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>新規登録</title>
-</head>
-<body>
+{% extends "sns/account_base.html" %}
+{% block title %}FC 新規登録{% endblock %}
+{% block content %}
 <div class="container">
   <div class="wrap">
-    <h4>新規登録</h4>
-    <form method="POST" enctype="multipart/form-data">
-        {% csrf_token %}
-        {{ signin_form }}
-        <input type="submit" class="" value="新規登録">
-    </form>
-  </div>
+      <div class="logo-container">
+          <div class="logo">
+              FINAL CLUB
+          </div>
+      </div>
+      <div class="form-container">
+          <form method="POST" enctype="multipart/form-data">
+              {% csrf_token %}
+              {% if signin_form.errors %}
+                <div class="message">
+                    {% for error in signin_form.email.errors %}
+                        <p>・ {{ error }}</p>
+                    {% endfor %}
+                    {% for error in signin_form.confirm_password.errors %}
+                        <p>・ {{ error }}</p>
+                    {% endfor %}
+                </div>
+              {% endif %}
+              <div class="form-items">
+                  <div class="form-item">
+                      <div class="form-label">
+                        メールアドレス
+                    </div>
+                    <div class="form-input">
+                        <input type="email" name="email" required id="id_email">
+                    </div>
+                  </div>
+                  <div class="form-item">
+                    <div class="form-label">
+                        パスワード<br>
+<!--                        <span class="description">(6文字以上で半角英語、全角英語、数字を含めてください)</span>-->
+                    </div>
+                    <div class="form-input">
+                        <input type="password" name="password" required id="id_password">
+                    </div>
+                  </div>
+                  <div class="form-item">
+                    <div class="form-label">
+                        パスワード再入力
+                    </div>
+                    <div class="form-input">
+                        <input type="password" name="confirm_password" required id="id_confirm_password">
+                    </div>
+                  </div>
+                  <div class="input-container">
+                      <input type="submit" class="" value="新規登録">
+                  </div>
+              </div>
+          </form>
+      </div>
+      <div class="sub">
+          <div class="redirect">
+              <a href="{% url 'sns:login' %}">既にアカウントを持っている方</a>
+          </div>
+      </div>
+    </div>
 </div>
-
-</body>
-</html>
+{% endblock %}

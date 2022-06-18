@@ -1,20 +1,72 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>ログイン画面</title>
-</head>
-<body>
+{% extends "sns/account_base.html" %}
+{% block title %}FC ログイン{% endblock %}
+{% block content %}
 <div class="container">
-  <div class="wrap">
-    <h4>ログイン</h4>
-    <form method="POST" enctype="multipart/form-data">
-        {% csrf_token %}
-        {{ login_form }}
-        <input type="submit" class="" value="ログイン">
-    </form>
-  </div>
+    <div class="wrap">
+        <div class="logo-container">
+            <div class="logo">
+                FINAL CLUB
+            </div>
+        </div>
+        <div class="form-container">
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                {% if login_form.errors %}
+                    <div class="message">
+                        {% for error in login_form.email.errors %}
+                            <p>・ {{ error }}</p>
+                        {% endfor %}
+                        {% for error in login_form.password.errors %}
+                        <p>・ {{ error }}</p>
+                        {% endfor %}
+                        {% for error in login_form.remember.errors %}
+                        <p>・ {{ error }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                {% if messages %}
+                  <div class="message">
+                    {% for message in messages %}
+                      <p>・{{message}}</p>
+                    {% endfor %}
+                  </div>
+                {% endif %}
+                <div class="form-items">
+                  <div class="form-item">
+                      <div class="form-label">
+                        メールアドレス
+                    </div>
+                    <div class="form-input">
+                        <input type="email" name="email" required id="id_email">
+                    </div>
+                  </div>
+                  <div class="form-item">
+                    <div class="form-label">
+                        パスワード
+                    </div>
+                    <div class="form-input">
+                        <input type="password" name="password" required id="id_password">
+                    </div>
+                  </div>
+                  <div class="form-checkbox">
+                    <div class="form-checkbox-label">
+                        ログインを保持する
+                    </div>
+                    <div class="checkbox">
+                        <input type="checkbox" name="remember" id="remember">
+                    </div>
+                  </div>
+                  <div class="input-container">
+                      <input type="submit" class="" value="ログイン">
+                  </div>
+                </div>
+            </form>
+        </div>
+        <div class="sub">
+          <div class="redirect">
+            <a href="{% url 'sns:signin' %}">アカウントを持っていない方</a>
+          </div>
+        </div>
+    </div>
 </div>
-
-</body>
-</html>
+{% endblock %}

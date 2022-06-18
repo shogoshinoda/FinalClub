@@ -1,5 +1,5 @@
 {% extends "sns/account_base.html" %}
-{% block title %}FC 仮登録{% endblock %}
+{% block title %}FC 本登録完了{% endblock %}
 {% block content %}
 <div class="container">
     <div class="wrap">
@@ -9,10 +9,10 @@
             </div>
         </div>
         <div class="form-container">
-            <h3>仮登録完了しました。<br>メールをご確認ください。</h3>
+            <h2>FINAL CLUBにようこそ！！！</h2>
             <hr>
             <div class="temporary">
-                <p>ご登録のメールアドレスに本登録メールを送信しました。メールに記載されているURLから本登録を完了してください。</p>
+                <a href="{% url 'sns:login' %}">ログイン画面へ</a>
             </div>
         </div>
     </div>

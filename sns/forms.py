@@ -1,14 +1,13 @@
 import re
 from datetime import datetime
+from string import ascii_uppercase, ascii_lowercase, digits
 
 from django import forms
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
-from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 
 from .models import (Users, UserProfiles, Boards,
                      BoardsComments, DMMessages)
-
 
 
 # アドミン画面ユーザ作成
@@ -47,6 +46,10 @@ class UserChangeForm(forms.ModelForm):
         return self.initial['password']
 
 
+def contain_any(password, condition_list):
+    return any([i in password for i in condition_list])
+
+
 # ユーザ登録
 class SignInForm(forms.ModelForm):
     email = forms.EmailField(label='メールアドレス', required=True)
@@ -61,6 +64,12 @@ class SignInForm(forms.ModelForm):
     def clean_confirm_password(self):
         password = self.cleaned_data['password']
         confirm_password = self.cleaned_data['confirm_password']
+        bool_length = len(password) >= 6
+        if not all([contain_any(password, ascii_lowercase),
+                    contain_any(password, ascii_uppercase),
+                    contain_any(password, digits),
+                    bool_length]):
+            raise forms.ValidationError('6文字以上で半角英語、全角英語、数字を含めてください')
         if password and confirm_password and password != confirm_password:
             raise forms.ValidationError('パスワードが一致しません')
         return confirm_password
@@ -70,7 +79,6 @@ class SignInForm(forms.ModelForm):
         email = self.cleaned_data['email']
         meijo_email: str = '@ccmailg.meijo-u.ac.jp'
         student_number = email[:9]
-        print(student_number)
         if not student_number.isdecimal():
             raise forms.ValidationError('正しいメールアドレスを入力してください')
         if not re.search(f'{ meijo_email }\Z', email):
@@ -85,7 +93,8 @@ class SignInForm(forms.ModelForm):
         user.save()
         return user
 
-# 仮登録画面フォーム
+
+# 本登録画面フォーム
 class InviteVerificationForm(forms.Form):
     invite_user = forms.CharField(label='招待主', required=True)
     invite_code = forms.UUIDField(label='招待コード',required=True)

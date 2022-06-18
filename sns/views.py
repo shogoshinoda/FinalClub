@@ -4,6 +4,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic.base import TemplateView
 from django.core.mail import send_mail
 from django.contrib.auth import authenticate, login
+from django.contrib import messages
 
 from .models import (Users, UserProfiles, UserAffiliation,
                      UserActivateTokens, UserInviteToken)
@@ -74,16 +75,30 @@ class MainRegistView(TemplateView):
                 if user_invite_token.available:
                     UserInviteToken.objects.available_false(token=invite_code)
                     user_activate_token = UserActivateTokens.objects.activate_user_by_token(self.kwargs.get('token'))
-                    return redirect('sns:login')
+                    return redirect('sns:regist_complete')
                 else:
-                    raise forms.ValidationError('招待コードが有効ではありません。')
+                    messages.error(self.request, '招待コードが有効ではありません。')
+                    context = {
+                        'invite_verification_form': invite_verification_form
+                    }
+                    return render(self.request, 'sns/main_regist.html', context)
             else:
-                raise forms.ValidationError('招待主または招待コードが異なります。')
+                messages.error(self.request, '招待主または招待コードが異なります。')
+                context = {
+                    'invite_verification_form': invite_verification_form
+                }
+                return render(self.request, 'sns/main_regist.html', context)
         else:
             context = {
                 'invite_verification_form': invite_verification_form
             }
             return render(self.request, 'sns/main_regist.html', context)
+
+
+# 本登録完了画面
+class RegistCompleteView(TemplateView):
+    template_name = 'sns/regist_complete.html'
+
 
 # ログイン画面
 class LoginView(TemplateView):
@@ -98,17 +113,21 @@ class LoginView(TemplateView):
     def post(self, request, *args, **kwargs):
         login_form = self.login_form_class(request.POST or None)
         if login_form.is_valid():
-            email = request.POST['email']
-            password = request.POST['password']
-            remember = request.POST['remember']
+            email = request.POST.get('email')
+            password = request.POST.get('password')
+            remember = request.POST.get('remember')
             if remember:
-                self.request.session.set_expiry(10368000) # ログイン状態保持にチェックがある場合120日ログイン状態保持
+                self.request.session.set_expiry(10368000)  # ログイン状態保持にチェックがある場合120日ログイン状態保持
             user = authenticate(email=email, password=password)
             next_url = request.POST.get('next')
             if user is not None and user.is_active:
                 login(request, user)
             else:
-                raise ValueError('メールアドレスもしくはパスワードが間違っています。')
+                messages.error(self.request, 'メールアドレスもしくはパスワードが間違っています。')
+                context = {
+                    'login_form': login_form
+                }
+                return render(self.request, 'sns/login.html', context)
             try:
                 UserProfiles.objects.get(user_id=self.request.user.id)
                 if next_url:
