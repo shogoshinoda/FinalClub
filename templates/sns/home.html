@@ -1,4 +1,33 @@
 {% extends "sns/base.html" %}
-{% block title %}{{ super }}ホーム{% endblock %}
+{% block title %}{{ block.super }}{% endblock %}
+{% block file %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'sns/css/home.css' %}">
+<link rel="stylesheet" href="{% static 'sns/css/croppie.css' %}">
+<script src="{% static 'sns/js/croppie.js' %}"></script>
+{% endblock %}
 {% block content %}
+<div class="main-container">
+    <div class="left-container">
+        <div class="board-container">
+            <div class="board-header-wrap">
+                <div class="bord-icon"></div>
+                <div class="board-user-name"></div>
+                <div class="board-setting"></div>
+            </div>
+            <div class="board-picture-wrap"></div>
+            <div class="board-action-wrap"></div>
+            <div class="board-description-wrap"></div>
+            <div class="board-comment-wrap"></div>
+        </div>
+    </div>
+    <div class="right-container">
+        <div class="create-board" id="create-board">
+            提示版作成
+        </div>
+        <div class="create-bord-form-container">
+            <div class="back"></div>
+        </div>
+    </div>
+</div>
 {% endblock %}

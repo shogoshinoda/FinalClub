@@ -162,7 +162,7 @@ class CreateProfileView(LoginRequiredMixin, TemplateView):
             username = request.POST.get('username')
             nickname = request.POST.get('nickname')
             user_icon = request.POST.get('user_icon')
-            user = self.request.user.id
+            user = self.request.user
             introduction = request.POST.get('introduction')
             self.form_save(username, nickname, user_icon, user, introduction)
             return redirect('sns:home')
@@ -173,7 +173,7 @@ class CreateProfileView(LoginRequiredMixin, TemplateView):
             return render(self.request, 'sns/create_profile.html', context)
     
 
-    def form_save(username, nickname, user_icon, user, introduction):
+    def form_save(self, username, nickname, user_icon, user, introduction):
         create_profile = UserProfiles(
             username=username,
             nickname=nickname,
@@ -182,4 +182,11 @@ class CreateProfileView(LoginRequiredMixin, TemplateView):
             introduction=introduction
         )
         create_profile.save()
+        return create_profile
+
+
+# ホーム画面
+class HomeView(LoginRequiredMixin, TemplateView):
+    template_name = 'sns/home.html'
+
         

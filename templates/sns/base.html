@@ -2,13 +2,15 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    {% block title %}FS {% endblock %}
+    <title>{% block title %}FS {% endblock %}</title>
     {% load static %}
-    <link rel="stylesheet" href="{% static 'css/bootstrap-reboot.css' %}">
-    <link rel="stylesheet" href="{% static 'css/account.css' %}">
+    <link rel="stylesheet" href="{% static 'sns/css/bootstrap-reboot.css' %}">
+    <link rel="stylesheet" href="{% static 'sns/css/base.css' %}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Dancing+Script&display=swap" rel="stylesheet">
+    {% block file %}
+    {% endblock %}
 </head>
 <body>
 <div class="header-wrap">
@@ -16,7 +18,7 @@
         <div class="header-contain">
             <div class="icon">
                 <div class="icon-img">
-                    <a href=""><img src="{% static 'img/base/final_club.svg' %}" alt="ロゴ"></a>
+                    <a href="{% url 'sns:home' %}"><img src="{% static 'sns/img/base/final_club.svg' %}" alt="ロゴ"></a>
                 </div>
             </div>
             <div class="search">
@@ -124,19 +126,19 @@
                 <div class="icons-contents">
             <div class="home">
                 <div class="home-icon">
-                    <a href="" class="home-img"><img src="{% static 'img/base/home.svg' %}" alt="ホームロゴ"></a>
+                    <a href="{% url 'sns:home' %}" class="home-img"><img src="{% static 'sns/img/base/home.svg' %}" alt="ホームロゴ"></a>
                 </div>
             </div>
             <div id="notice" class="notice">
                 <div id="notice-icon" class="notice-icon">
-                    <img id="notice-icon-img" src="{% static 'img/base/notifications.svg' %}" alt="">
+                    <img id="notice-icon-img" src="{% static 'sns/img/base/notifications.svg' %}" alt="">
                 </div>
                 <div id="notice-box" class="notice-box none"></div>
                 <div id="notice-wrap" class="notice-wrap none">
                       <div class="notice-content">
                           <div class="notice-user">
                               <div class="user-icon">
-                                  <a href="" class="user-icon-img"><img src="{% static 'img/base/account_circle.svg' %}" alt=""></a>
+                                  <a href="" class="user-icon-img"><img src="{% static 'sns/img/base/account_circle.svg' %}" alt=""></a>
                               </div>
                               <div class="user-info">
                                   <div class="user-id">
@@ -153,7 +155,7 @@
                       <div class="notice-content">
                           <div class="notice-user">
                               <div class="user-icon">
-                                  <a href="" class="user-icon-img"><img src="{% static 'img/base/account_circle.svg' %}" alt=""></a>
+                                  <a href="" class="user-icon-img"><img src="{% static 'sns/img/base/account_circle.svg' %}" alt=""></a>
                               </div>
                               <div class="user-info">
                                   <div class="user-id">
@@ -170,7 +172,7 @@
                       <div class="notice-content">
                           <div class="notice-user">
                               <div class="user-icon">
-                                  <a href="" class="user-icon-img"><img src="{% static 'img/base/account_circle.svg' %}" alt=""></a>
+                                  <a href="" class="user-icon-img"><img src="{% static 'sns/img/base/account_circle.svg' %}" alt=""></a>
                               </div>
                               <div class="user-info">
                                   <div class="user-id">
@@ -187,7 +189,7 @@
                       <div class="notice-content">
                           <div class="notice-user">
                               <div class="user-icon">
-                                  <a href="" class="user-icon-img"><img src="{% static 'img/base/account_circle.svg' %}" alt=""></a>
+                                  <a href="" class="user-icon-img"><img src="{% static 'sns/img/base/account_circle.svg' %}" alt=""></a>
                               </div>
                               <div class="user-info">
                                   <div class="user-id">
@@ -204,7 +206,7 @@
                       <div class="notice-content">
                           <div class="notice-user">
                               <div class="user-icon">
-                                  <a href="" class="user-icon-img"><img src="{% static 'img/base/account_circle.svg' %}" alt=""></a>
+                                  <a href="" class="user-icon-img"><img src="{% static 'sns/img/base/account_circle.svg' %}" alt=""></a>
                               </div>
                               <div class="user-info">
                                   <div class="user-id">
@@ -221,7 +223,7 @@
                       <div class="notice-content">
                           <div class="notice-user">
                               <div class="user-icon">
-                                  <a href="" class="user-icon-img"><img src="{% static 'img/base/account_circle.svg' %}" alt=""></a>
+                                  <a href="" class="user-icon-img"><img src="{% static 'sns/img/base/account_circle.svg' %}" alt=""></a>
                               </div>
                               <div class="user-info">
                                   <div class="user-id">
@@ -239,24 +241,24 @@
             </div>
             <div class="room">
                 <div class="room-icon">
-                    <a href="" class="room-img"><img src="{% static 'img/base/room.svg' %}" alt=""></a>
+                    <a href="" class="room-img"><img src="{% static 'sns/img/base/room.svg' %}" alt=""></a>
                 </div>
             </div>
             <div class="questions">
                 <div class="questions-icon">
-                    <a href="" class="questions-img"><img src="{% static 'img/base/question.svg' %}" alt=""></a>
+                    <a href="" class="questions-img"><img src="{% static 'sns/img/base/question.svg' %}" alt=""></a>
                 </div>
             </div>
             <div class="my-icon">
                 <div id="my-icon-contain" class="my-icon-contain">
-                    <img src="{% static 'img/base/account_circle.svg' %}" alt="">
+                    <img src="{% static 'sns/img/base/account_circle.svg' %}" alt="">
                 </div>
                 <div id="my-icon-box" class="my-icon-box none"></div>
                 <div id="my-icon-description" class="my-icon-description none">
                     <div class="profile-wrap">
                         <div class="profile-content">
                             <div class="profile-icon">
-                                <img src="{% static 'img/base/account_circle.svg' %}" alt="">
+                                <img src="{% static 'sns/img/base/account_circle.svg' %}" alt="">
                             </div>
                             <div class="profile-text">
                                 <a class="a" href="">プロフィールへ</a>
@@ -266,7 +268,7 @@
                     <div class="settings-wrap">
                         <div class="setting-content">
                             <div class="setting-icon">
-                                <img src="{% static 'img/base/settings.svg' %}" alt="">
+                                <img src="{% static 'sns/img/base/settings.svg' %}" alt="">
                             </div>
                             <div class="setting-text">
                                 <a class="a" href="">設定へ</a>
@@ -288,6 +290,6 @@
 </div>
 {% block content %}
 {% endblock %}
-<script src="/static/js/base.js" ></script>
+<script src="{% static 'sns/js/base.js' %}" ></script>
 </body>
 </html>
