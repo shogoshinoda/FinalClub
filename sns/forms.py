@@ -7,6 +7,7 @@ from django import forms
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
 from django.core.exceptions import ValidationError
 
+
 from .models import (Users, UserProfiles, Boards,
                      BoardsComments, DMMessages)
 
@@ -124,7 +125,7 @@ class ProfileForm(forms.ModelForm):
 # プロフィール更新フォーム
 class UpdateProfileForm(forms.ModelForm):
     username = forms.CharField(label='ユーザ名')
-    user_icon = forms.FileField(label='ユーザアイコン')
+    user_icon = forms.ImageField(label='ユーザアイコン')
     introduction = forms.CharField(label='自己紹介', widget=forms.Textarea(attrs={'rows': 4, 'cols': 15}))
 
     class Meta:
@@ -134,16 +135,16 @@ class UpdateProfileForm(forms.ModelForm):
 
 # 提示版作成フォーム
 class BoardsForm(forms.ModelForm):
-    picture1 = forms.FileField(label='')
-    picture2 = forms.FileField(label='')
-    picture3 = forms.FileField(label='')
-    picture4 = forms.FileField(label='')
-    picture5 = forms.FileField(label='')
-    picture6 = forms.FileField(label='')
-    picture7 = forms.FileField(label='')
-    picture8 = forms.FileField(label='')
-    picture9 = forms.FileField(label='')
-    picture10 = forms.FileField(label='')
+    picture1 = forms.ImageField(label='', required=False)
+    picture2 = forms.ImageField(label='', required=False)
+    picture3 = forms.ImageField(label='', required=False)
+    picture4 = forms.ImageField(label='', required=False)
+    picture5 = forms.ImageField(label='', required=False)
+    picture6 = forms.ImageField(label='', required=False)
+    picture7 = forms.ImageField(label='', required=False)
+    picture8 = forms.ImageField(label='', required=False)
+    picture9 = forms.ImageField(label='', required=False)
+    picture10 = forms.ImageField(label='', required=False)
     description = forms.CharField(label='コメント', widget=forms.Textarea(attrs={'rows': 4, 'cols': 15}))
 
     class Meta:

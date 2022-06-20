@@ -5,6 +5,7 @@
 <link rel="stylesheet" href="{% static 'sns/css/home.css' %}">
 <link rel="stylesheet" href="{% static 'sns/css/croppie.css' %}">
 <script src="{% static 'sns/js/croppie.js' %}"></script>
+<script src="{% static 'sns/js/profileImage.js' %}"></script>
 {% endblock %}
 {% block content %}
 <div class="main-container">
@@ -30,4 +31,40 @@
         </div>
     </div>
 </div>
+<a class="btn btn-success btn-sm mb-2" href="#" data-toggle="modal" data-target="#uploadimageModal" role="button">プロフィール画像アップロード</a>
+<div class="modal fade" id="uploadimageModal" tabindex="-1" role="dialog" aria-labelledby="uploadimageModalTitle" aria-hidden="true">
+</div>
+<div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title">プロフィール画像をアップロード</h5>
+        </div>
+        <div class="modal-body">
+            <div class="input-group mb-3">
+                <p>プロフィールに使用する画像をアップロードし、トリミングを行った上で登録してください。</p>
+                <div class="input-group-prepend">
+                    <span class="input-group-text" id="inputGroupFileAddon">アップロード</span>
+                </div>
+                <div class="custom-file">
+                    <input type="file" name="upload_image" id="upload_image" class="custom-file-input" aria-describedby="inputGroupFileAddon" accept="image/*" />
+                    <label class="custom-file-label" for="inputGroupFile" data-browse="参照">ファイル選択...</label>
+                </div>
+            </div>
+            <div id="profileImage_croppie"></div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-primary btn-sm" id="post_image">画像を登録</button>
+            <button type="button" class="btn btn-secondary btn-sm ml-2" id="cancel" data-dismiss="modal">キャンセル</button>
+        </div>
+    </div>
+</div>
+    <main class="container">
+        <form id="create_boards_form" action="" method="POST" enctype="multipart/form-data" data-url="{% url 'sns:home' %}">
+            {% csrf_token %}
+            {{ board_form }}
+            <input id="submit" type="submit" value="送信">
+        </form>
+        <div class="a" id="content">
+        </div>
+    </main>
 {% endblock %}

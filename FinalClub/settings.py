@@ -22,6 +22,7 @@ INSTALLED_APPS = [
     'sns'
 ]
 
+
 AUTH_USER_MODEL = 'sns.Users'
 
 MIDDLEWARE = [

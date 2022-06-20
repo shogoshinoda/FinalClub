@@ -1,16 +1,20 @@
+from hmac import new
 from django.shortcuts import render, redirect
-from django import forms
 from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic.base import TemplateView
 from django.core.mail import send_mail
 from django.contrib.auth import authenticate, login
 from django.contrib import messages
+from django.http.response import JsonResponse
+from django.template.loader import render_to_string
+from django.forms.models import model_to_dict
+from nbformat import ValidationError
 
 from .models import (Users, UserProfiles, UserAffiliation,
-                     UserActivateTokens, UserInviteToken)
+                     UserActivateTokens, UserInviteToken, Boards)
 from .forms import (SignInForm, InviteVerificationForm, LoginForm,
-                    ProfileForm)
+                    ProfileForm, BoardsForm)
 
 
 # ユーザ登録
@@ -161,7 +165,7 @@ class CreateProfileView(LoginRequiredMixin, TemplateView):
         if create_profile_form.is_valid():
             username = request.POST.get('username')
             nickname = request.POST.get('nickname')
-            user_icon = request.POST.get('user_icon')
+            user_icon = request.FILES.get('user_icon')
             user = self.request.user
             introduction = request.POST.get('introduction')
             self.form_save(username, nickname, user_icon, user, introduction)
@@ -188,5 +192,60 @@ class CreateProfileView(LoginRequiredMixin, TemplateView):
 # ホーム画面
 class HomeView(LoginRequiredMixin, TemplateView):
     template_name = 'sns/home.html'
+    board_form_class = BoardsForm
+    
+    def get_context_data(self, **kwargs):
+        context =  super().get_context_data(**kwargs)
+        boards = Boards.objects.all()
+        board_form = self.board_form_class
+        context['boards'] = boards
+        context['board_form'] = board_form
+        return context
+    
+    def post(self, request, *args, **kwargs):
+        boards_form = self.board_form_class(request.POST or None, request.FILES or None)
+        user = Users.objects.get(id=self.request.user.id)
+        if boards_form.is_valid():
+            picture1 = request.FILES.get('picture1')
+            picture2 = request.FILES.get('picture2')
+            picture3 = request.FILES.get('picture3')
+            picture4 = request.FILES.get('picture4')
+            picture5 = request.FILES.get('picture5')
+            picture6 = request.FILES.get('picture6')
+            picture7 = request.FILES.get('picture7')
+            picture8 = request.FILES.get('picture8')
+            picture9 = request.FILES.get('picture9')
+            picture10 = request.FILES.get('picture10')
+            description = request.POST.get('description')
+            new_board =self.boards_form_save(user, picture1, picture2, picture3, picture4, picture5,picture6,
+                                  picture7, picture8, picture9, picture10, description)
+            picture_exits = []
+            for i in range(1, 11):
+                word = eval('picture' + str(i))
+                print(word is None)
+                if word is None:
+                    continue
+                picture_exits.append(i)
+            params = {
+                'description': new_board.description
+            }
+            print(picture_exits)
+            for i in picture_exits:
+                params['picture'+str(i)] = eval('new_board.picture' + str(i) + '.url')
+            return JsonResponse({'board': params}, status=200)
+        else:
+            print('Validation Error')
 
-        
+    
+    def boards_form_save(self, user, picture1, picture2, picture3, picture4, picture5,
+                         picture6, picture7, picture8, picture9, picture10,
+                         description):
+                         create_boards = Boards(
+                            user=user, picture1=picture1, picture2=picture2,
+                            picture3=picture3, picture4=picture4, picture5=picture5,
+                            picture6=picture6, picture7=picture7, picture8=picture8,
+                            picture9=picture9, picture10=picture10, description=description
+                         )
+                         create_boards.save()
+                         return create_boards
+
