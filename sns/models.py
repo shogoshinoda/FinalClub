@@ -53,7 +53,6 @@ class Users(AbstractBaseUser, PermissionsMixin):
     objects = UserManager()
 
 
-
 # ユーザ登録トークンマネージャー
 class UserActivateTokenManager(models.Manager):
 
@@ -126,6 +125,7 @@ def detective_affiliation(email):
         course = courses['00']
     return year, department, course
 
+
 # 学生情報マネージャー
 class UserAffiliationManager(models.Manager):
 
@@ -138,6 +138,7 @@ class UserAffiliationManager(models.Manager):
             user=user
         )
         user_affiliation.save()
+
 
 # 学生情報
 class UserAffiliation(models.Model):
@@ -204,7 +205,10 @@ class BoardsManager(models.Manager):
 # 提示版
 class Boards(models.Model):
     user = models.ForeignKey(
-        'Users', on_delete=models.CASCADE
+        'Users', on_delete=models.CASCADE, related_name='contributor'
+    )
+    user_profile = models.ForeignKey(
+        'UserProfiles', on_delete=models.CASCADE, related_name='contributor_user_profile'
     )
     picture1 = models.ImageField(upload_to='board_pictures/%Y/%m/%d/', null=True, blank=True)
     picture2 = models.ImageField(upload_to='board_pictures/%Y/%m/%d/', null=True, blank=True)
@@ -230,10 +234,10 @@ class Boards(models.Model):
 @receiver(post_delete, sender=Boards)
 def delete_picture(sender, instance, **kwargs):
     for i in range(1, 11):
-        db_name = 'picture' + str(i)
-        if instance.db_name:
-            if os.path.isfile(instance.db_name.path):
-                os.remove(instance.db_name.path)
+        db_name = eval('instance.picture' + str(i))
+        if db_name:
+            if os.path.isfile(db_name.path):
+                os.remove(db_name.path)
 
 
 # 提示版いいねマネージャー

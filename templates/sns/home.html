@@ -4,36 +4,99 @@
 {% load static %}
 <link rel="stylesheet" href="{% static 'sns/css/home.css' %}">
 <link rel="stylesheet" href="{% static 'sns/css/croppie.css' %}">
-<script src="{% static 'sns/js/croppie.js' %}"></script>
-<script src="{% static 'sns/js/profileImage.js' %}"></script>
 {% endblock %}
 {% block content %}
-<div class="main-container">
+<div class="home-wrap">
+<div class="home-container">
     <div class="left-container">
+        {% for board in boards %}
         <div class="board-container">
-            <div class="board-header-wrap">
-                <div class="bord-icon"></div>
-                <div class="board-user-name"></div>
-                <div class="board-setting"></div>
+            <div class="board-wrap">
+                <div class="board-header-wrap">
+                    <div class="board-header-contents">
+                    <div class="board-user-wrap">
+                        <div class="board-icon">
+                            <img src="{{ board.user_profile.user_icon.url}}" alt="">
+                        </div>
+                        <div class="board-username">
+                            {{ board.user_profile.username }}
+                        </div>
+                    </div>
+                    <div class="board-setting">
+                        <div class="three-point">
+                            <img src="{% static 'sns/img/home/three_point.svg' %}" alt="">
+                        </div>
+                    </div>
+                    </div>
+                </div>
+                <div class="board-picture-wrap">
+                    <div class="board-picture">
+                        <img src="{{ board.picture1.url }}" class="target" alt="">
+                        <img src="{{ board.picture2.url }}" alt="">
+                    </div>
+                    <div class="navigator-before-shadow none"></div>
+                    <button class="navigator-before none" id="before">
+                        <div class="before"></div>
+                    </button>
+                    <div class="navigator-next-shadow"></div>
+                    <button class="navigator-next">
+                        <div class="next"></div>
+                    </button>
+                </div>
+                <div class="board-footer">
+                    <div class="board-action-wrap">
+                        <div class="favorite">
+                            <img src="{% static 'sns/img/home/favorite.svg' %}" alt="">
+                        </div>
+                    </div>
+                    <div class="board-like-list">
+                        <div class="like-list">
+                            <span class="strong">line3888、その他</span>が「いいね！」しました                        </div>
+                    </div>
+                    <div class="board-description-container">
+                        <div class="board-description-wrap">
+                            <div class="board-description-user">
+                                {{ board.user_profile.username }}
+                            </div>
+                            <div class="board-description-text">
+                                {{ board.description }}
+                            </div>
+                        </div>
+                        <div class="board-comment-list-wrap">
+                            コメント
+                        </div>
+                    </div>
+                    <div class="board-time">
+                        {{ board.create_at }}
+                    </div>
+                    <div class="board-comment-action-wrap">
+                        <input id="comment" type="text" placeholder="コメント追加...">
+                        <input class="comment-submit" type="submit" value="投稿">
+                    </div>
+                </div>
             </div>
-            <div class="board-picture-wrap"></div>
-            <div class="board-action-wrap"></div>
-            <div class="board-description-wrap"></div>
-            <div class="board-comment-wrap"></div>
         </div>
+        {% endfor %}
     </div>
     <div class="right-container">
         <div class="create-board" id="create-board">
-            提示版作成
+            <div class="form">
+                <form id="create_boards_form" action="" method="POST" enctype="multipart/form-data" data-url="{% url 'sns:home' %}">
+                    {% csrf_token %}
+                    {{ board_form }}
+                    <input id="submit" type="submit" value="送信">
+                </form>
+            </div>
         </div>
         <div class="create-bord-form-container">
             <div class="back"></div>
         </div>
     </div>
 </div>
-<a class="btn btn-success btn-sm mb-2" href="#" data-toggle="modal" data-target="#uploadimageModal" role="button">プロフィール画像アップロード</a>
-<div class="modal fade" id="uploadimageModal" tabindex="-1" role="dialog" aria-labelledby="uploadimageModalTitle" aria-hidden="true">
 </div>
+<!--<a class="btn btn-success btn-sm mb-2" href="#" data-toggle="modal" data-target="#uploadimageModal" role="button">プロフィール画像アップロード</a>-->
+<!--<div class="modal fade" id="uploadimageModal" tabindex="-1" role="dialog" aria-labelledby="uploadimageModalTitle" aria-hidden="true">-->
+{% comment %} </div>
 <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
     <div class="modal-content">
         <div class="modal-header">
@@ -57,14 +120,6 @@
             <button type="button" class="btn btn-secondary btn-sm ml-2" id="cancel" data-dismiss="modal">キャンセル</button>
         </div>
     </div>
-</div>
-    <main class="container">
-        <form id="create_boards_form" action="" method="POST" enctype="multipart/form-data" data-url="{% url 'sns:home' %}">
-            {% csrf_token %}
-            {{ board_form }}
-            <input id="submit" type="submit" value="送信">
-        </form>
-        <div class="a" id="content">
-        </div>
-    </main>
+</div> {% endcomment %}
+<script src="{% static 'sns/js/home.js' %}"></script>
 {% endblock %}

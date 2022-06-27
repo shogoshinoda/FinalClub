@@ -1,4 +1,6 @@
 from hmac import new
+from re import template
+from time import sleep
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -9,7 +11,7 @@ from django.contrib import messages
 from django.http.response import JsonResponse
 from django.template.loader import render_to_string
 from django.forms.models import model_to_dict
-from nbformat import ValidationError
+from django.http import HttpResponse
 
 from .models import (Users, UserProfiles, UserAffiliation,
                      UserActivateTokens, UserInviteToken, Boards)
@@ -74,7 +76,14 @@ class MainRegistView(TemplateView):
         invite_verification_form = self.invite_verification_form_class(request.POST or None)
         if invite_verification_form.is_valid():
             invite_user_email = request.POST.get('invite_user')
-            invite_user = Users.objects.get(email=invite_user_email)
+            try:
+                invite_user = Users.objects.get(email=invite_user_email)
+            except:
+                messages.error(self.request, '招待主または招待コードが異なります。')
+                context = {
+                    'invite_verification_form': invite_verification_form
+                }
+                return render(self.request, 'sns/main_regist.html', context)
             invite_code = request.POST.get('invite_code')
             if UserInviteToken.objects.filter(invite_token=invite_code, user=invite_user).exists():
                 user_invite_token = UserInviteToken.objects.get(invite_token=invite_code)
@@ -139,7 +148,7 @@ class LoginView(TemplateView):
                 if next_url:
                     return redirect(next_url)
                 else:
-                    redirect('sns:home')
+                    return redirect('sns:home')
             except:
                 return redirect('sns:create_profile')
         else:
@@ -193,6 +202,20 @@ class CreateProfileView(LoginRequiredMixin, TemplateView):
 class HomeView(LoginRequiredMixin, TemplateView):
     template_name = 'sns/home.html'
     board_form_class = BoardsForm
+
+    # def get(self, request, *args, **kwargs):
+    #     boards = Boards.objects.all()
+    #     board_form = self.board_form_class
+    #     template_name = 'sns/home.html'
+    #     context = {
+    #         'boards': boards,
+    #         'board_form': board_form
+    #     }
+    #     content = render_to_string(template_name, context, self.request)
+    #     data = {
+    #         "content": content
+    #     }
+    #     return JsonResponse(data)
     
     def get_context_data(self, **kwargs):
         context =  super().get_context_data(**kwargs)
@@ -203,9 +226,13 @@ class HomeView(LoginRequiredMixin, TemplateView):
         return context
     
     def post(self, request, *args, **kwargs):
-        boards_form = self.board_form_class(request.POST or None, request.FILES or None)
+        board_form = self.board_form_class(request.POST or None, request.FILES or None)
         user = Users.objects.get(id=self.request.user.id)
-        if boards_form.is_valid():
+        user_profile = UserProfiles.objects.get(user=self.request.user.id)
+        if board_form.is_valid():
+            print()
+            print('success')
+            print()
             picture1 = request.FILES.get('picture1')
             picture2 = request.FILES.get('picture2')
             picture3 = request.FILES.get('picture3')
@@ -217,31 +244,46 @@ class HomeView(LoginRequiredMixin, TemplateView):
             picture9 = request.FILES.get('picture9')
             picture10 = request.FILES.get('picture10')
             description = request.POST.get('description')
-            new_board =self.boards_form_save(user, picture1, picture2, picture3, picture4, picture5,picture6,
+            new_board = self.boards_form_save(user, user_profile, picture1, picture2, picture3, picture4, picture5,picture6,
                                   picture7, picture8, picture9, picture10, description)
-            picture_exits = []
-            for i in range(1, 11):
-                word = eval('picture' + str(i))
-                print(word is None)
-                if word is None:
-                    continue
-                picture_exits.append(i)
-            params = {
-                'description': new_board.description
-            }
-            print(picture_exits)
-            for i in picture_exits:
-                params['picture'+str(i)] = eval('new_board.picture' + str(i) + '.url')
-            return JsonResponse({'board': params}, status=200)
-        else:
-            print('Validation Error')
+            # boards = Boards.objects.all()
+            # tempBoards = []
+            # for i in range(len(boards)):
+            #     tempBoards.append(self.boards_to_dictionary(boards[i]))
+            # boards = tempBoards
+            # board = self.boards_to_dictionary(new_board)
+            # params = {
+            #     'description': new_board.description,
+            #     'boards': boards
+            # }
+            return redirect('sns:home')
+        return redirect('sns:home')
 
     
-    def boards_form_save(self, user, picture1, picture2, picture3, picture4, picture5,
+    def boards_to_dictionary(self, boards):
+        picture_exits = []
+        for i in range(1, 11):
+            word = eval('boards.picture' + str(i))
+            try:
+                word = word.url
+                picture_exits.append(i)
+            except:
+                continue
+        output = {}
+        output['user'] = boards.user.id
+        for i in picture_exits:
+            output['picture'+str(i)] = eval('boards.picture' + str(i) + '.url')
+        output['description'] = boards.description
+        output['create_at'] = boards.create_at
+        output['update_at'] = boards.update_at
+        return output
+
+    
+    def boards_form_save(self, user, user_profile, picture1, picture2, picture3, picture4, picture5,
                          picture6, picture7, picture8, picture9, picture10,
                          description):
                          create_boards = Boards(
-                            user=user, picture1=picture1, picture2=picture2,
+                            user=user, user_profile=user_profile, picture1=picture1, picture2=picture2,
                             picture3=picture3, picture4=picture4, picture5=picture5,
                             picture6=picture6, picture7=picture7, picture8=picture8,
                             picture9=picture9, picture10=picture10, description=description

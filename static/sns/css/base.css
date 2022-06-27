@@ -33,6 +33,9 @@ html {
     margin: 0 auto;
     height: var(--header-height);
     background-color: white;
+    position: fixed;
+    z-index: 1000;
+    width: 100%;
 }
 nav {
     border-bottom: 1px solid var(--sub-bg-color);
