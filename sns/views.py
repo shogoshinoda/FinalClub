@@ -1,19 +1,13 @@
-from hmac import new
-from re import template
-from time import sleep
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic.base import TemplateView
+from django.contrib.auth.views import LogoutView
 from django.core.mail import send_mail
 from django.contrib.auth import authenticate, login
 from django.contrib import messages
-from django.http.response import JsonResponse
-from django.template.loader import render_to_string
-from django.forms.models import model_to_dict
-from django.http import HttpResponse
 
-from .models import (Users, UserProfiles, UserAffiliation,
+from .models import (FollowFollowerUser, Users, UserProfiles, UserAffiliation,
                      UserActivateTokens, UserInviteToken, Boards,
                      BoardsLikes, BoardsComments)
 from .forms import (SignInForm, InviteVerificationForm, LoginForm,
@@ -198,6 +192,11 @@ class CreateProfileView(LoginRequiredMixin, TemplateView):
         return create_profile
 
 
+# ログアウト
+class LogoutView(LogoutView):
+    pass
+
+
 # ホーム画面
 class HomeView(LoginRequiredMixin, TemplateView):
     template_name = 'sns/home.html'
@@ -205,24 +204,11 @@ class HomeView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context =  super().get_context_data(**kwargs)
+        username = UserProfiles.objects.get(user=self.request.user).username
         boards = Boards.objects.all()
         board_form = self.board_form_class
         board_items = []
         for i in boards:
-            # board_items['user'] = i.user
-            # board_items['user_profile'] = i.user_profile
-            # board_items['picture1'] = i.picture1
-            # board_items['picture2'] = i.picture2
-            # board_items['picture3'] = i.picture3
-            # board_items['picture4'] = i.picture4
-            # board_items['picture5'] = i.picture5
-            # board_items['picture6'] = i.picture6
-            # board_items['picture7'] = i.picture7
-            # board_items['picture8'] = i.picture8
-            # board_items['picture9'] = i.picture9
-            # board_items['picture10'] = i.picture10
-            # board_items['description'] = i.description
-            # board_items['create_at'] = i.create_at
             likes = BoardsLikes.objects.filter(board=i).all().count()
             like_first_people = BoardsLikes.objects.filter(board=i).first()
             comments = BoardsComments.objects.filter(board=i).all()
@@ -235,6 +221,7 @@ class HomeView(LoginRequiredMixin, TemplateView):
             board_items.append(items)
         context['boards'] = board_items
         context['board_form'] = board_form
+        context['username'] = username
         return context
     
     def post(self, request, *args, **kwargs):
@@ -301,4 +288,29 @@ class HomeView(LoginRequiredMixin, TemplateView):
                          )
                          create_boards.save()
                          return create_boards
+
+
+# 個人画面
+class UserHomeView(LoginRequiredMixin, TemplateView):
+    template_name = 'sns/user_home.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        host_user = UserProfiles.objects.get(username=self.kwargs.get('host_user'))
+        boards = Boards.objects.filter(user=host_user.user)
+        number_of_board = boards.count()
+        count_follow = FollowFollowerUser.objects.count_follow(follow_user=host_user.user)
+        count_follower = FollowFollowerUser.objects.count_follower(follower_user=host_user.user)
+        username = UserProfiles.objects.get(user=self.request.user).username
+        context['host_user'] = host_user
+        context['boards'] = boards
+        context['number_of_board'] = number_of_board
+        context['count_follow'] = count_follow
+        context['count_follower'] = count_follower
+        context['username'] = username
+        return context
+    
+
+
+
 

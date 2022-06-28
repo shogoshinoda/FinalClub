@@ -1,0 +1,116 @@
+
+
+.user-home-container {
+    margin: 0 auto;
+    max-width: 935px;
+    width: 100%;
+    opacity: 100;
+    padding: 70px 20px 0;
+}
+
+.user-home-wrap > .profile-wrap {
+    width: 100%;
+    display: flex;
+    height: 100%;
+    padding-bottom: 44px;
+    border-bottom: 1px solid rgb(219, 219, 219);
+}
+.profile-image {
+    flex-grow: 1;
+    text-align: center;
+    margin-right: 30px;
+    padding: 0 50px 0 20px;
+}
+
+.profile-description {
+    flex-grow: 3;
+}
+.profile-description-wrap {
+    margin: 0 auto;
+}
+.profile-image > img {
+    width: 168px;
+    height: 168px;
+}
+.top {
+    margin-top: 30px;
+    display: flex;
+    margin-bottom: 20px;
+    align-items: center;
+}
+.middle {
+    display: flex;
+    margin-bottom: 20px;
+    color: rgb(38, 38, 38);
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 18px;
+    justify-content: space-around;
+}
+.strong {
+    font-weight: 600;
+    color: rgb(38, 38, 38);
+}
+.nickname {
+    color: rgb(38, 38, 38);
+    font-weight: 600;
+    font-size: 16px;
+    line-height: 24px;
+}
+.user-intro {
+    color: rgb(38, 38, 38);
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 24px;
+}
+.username {
+    margin-right: 60px;
+}
+.action-message {
+    background-color: transparent;
+    border: 1px solid rgb(219, 219, 219);
+    border-radius: 5px;
+    padding: 5px 9px;
+    color: rgb(38, 38, 38);
+    font-weight: 600;
+    font-size: 14px;
+    line-height: 18px;
+    margin-right: 5px;
+}
+.follow-action {
+    background-color: transparent;
+    border: 1px solid rgb(219, 219, 219);
+    border-radius: 5px;
+    padding: 5px 9px;
+    color: rgb(38, 38, 38);
+    font-weight: 600;
+    font-size: 14px;
+    line-height: 18px;
+    margin-right: 5px;
+}
+.username-text {
+    color: rgb(38, 38, 38);
+    font-weight: 300;
+    font-size: 28px;
+    line-height: 32px;
+}
+.setting > img {
+    width: 32px;
+    height: 32px;
+}
+
+.boards-wrap {
+    display: flex;
+    flex-wrap: wrap;
+    margin-top: 30px;
+    width: 100%;
+}
+.board {
+    width: 270px;
+    height: 270px;
+    margin: 14px;
+}
+.board > img {
+    width: 100%;
+    height: 100%;;
+}

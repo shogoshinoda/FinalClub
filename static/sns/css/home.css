@@ -57,12 +57,12 @@
     height: 32px;
     margin-left: 10px;
 }
-.board-icon > img {
+.board-icon a > img {
     width: 100%;
     height: 100%;
 }
 
-.board-username {
+.board-username  a {
     margin-left: 5px;
     padding-top: 3px;
     color: rgb(38, 38, 38);

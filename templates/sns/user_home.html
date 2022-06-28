@@ -1,0 +1,45 @@
+{% extends "sns/base.html" %}
+{% block title %}{{ block.super }}{{ host_user.username}}{% endblock %}
+{% block file%}
+{% load static %}
+<link rel="stylesheet" href="{% static 'sns/css/user_home.css' %}">
+{% endblock %}
+{% block content %}
+<div class="user-home-container">
+    <div class="user-home-wrap">
+        <div class="profile-wrap">
+            <div class="profile-image">
+                <img src="{{ host_user.user_icon.url }}" alt="">
+            </div>
+            <div class="profile-description">
+                <div class="profile-description-wrap">
+                <div class="top">
+                    <div class="username">
+                        <h2 class="username-text">{{ host_user.username }}</h2>
+                    </div>
+                    <div class="action-message">メッセージを送信</div>
+                    <div class="follow-action">フォローする</div>
+                    <div class="setting"><img src="{% static 'sns/img/home/three_point.svg' %}" alt=""></div>
+                </div>
+                <div class="middle">
+                    <div class="board-count">投稿<span class="strong">{{ number_of_board }}</span>件</div>
+                    <div class="follower-count">フォロワー<span class="strong">{{ count_follower}}</span>人</div>
+                    <div class="follow-count">フォロー<span class="strong">{{ count_follow }}</span>人</div>
+                </div>
+                <div class="bottom">
+                    <div class="nickname">{{ host_user.nickname }}</div>
+                    <div class="user-intro">{{ host_user.introduction }}</div>
+                </div>
+                </div>
+            </div>
+        </div>
+        <div class="boards-container">
+            <div class="boards-wrap">
+                {% for board in boards %}
+                <div class="board"><img src="{{ board.picture1.url}}" alt=""></div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

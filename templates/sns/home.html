@@ -16,10 +16,10 @@
                     <div class="board-header-contents">
                     <div class="board-user-wrap">
                         <div class="board-icon">
-                            <img src="{{ board.item.user_profile.user_icon.url}}" alt="">
+                            <a href="{% url 'sns:user_home' board.item.user_profile.username %}"><img src="{{ board.item.user_profile.user_icon.url}}" alt=""></a>
                         </div>
                         <div class="board-username">
-                            {{ board.item.user_profile.username }}
+                            <a href="{% url 'sns:user_home' board.item.user_profile.username %}">{{ board.item.user_profile.username }}</a>
                         </div>
                     </div>
                     <div class="board-setting">
