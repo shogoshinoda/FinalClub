@@ -90,8 +90,10 @@
 }
 .board-picture {
     display: flex;
-    transform: translateX(0%);
     transition-duration: .5s;
+    position: relative;
+    left: 0%;
+    top: 0;
 }
 .board-picture > img {
     height: 585px;

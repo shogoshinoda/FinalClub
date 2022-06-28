@@ -14,7 +14,8 @@ from django.forms.models import model_to_dict
 from django.http import HttpResponse
 
 from .models import (Users, UserProfiles, UserAffiliation,
-                     UserActivateTokens, UserInviteToken, Boards)
+                     UserActivateTokens, UserInviteToken, Boards,
+                     BoardsLikes, BoardsComments)
 from .forms import (SignInForm, InviteVerificationForm, LoginForm,
                     ProfileForm, BoardsForm)
 
@@ -158,7 +159,7 @@ class LoginView(TemplateView):
             return render(self.request, 'sns/login.html', context)
 
 
-#プロフィール作成画面
+# プロフィール作成画面
 class CreateProfileView(LoginRequiredMixin, TemplateView):
     template_name = 'sns/create_profile.html'
     create_profile_form_class = ProfileForm
@@ -184,7 +185,6 @@ class CreateProfileView(LoginRequiredMixin, TemplateView):
                 'create_profile_form': create_profile_form
             }
             return render(self.request, 'sns/create_profile.html', context)
-    
 
     def form_save(self, username, nickname, user_icon, user, introduction):
         create_profile = UserProfiles(
@@ -203,25 +203,37 @@ class HomeView(LoginRequiredMixin, TemplateView):
     template_name = 'sns/home.html'
     board_form_class = BoardsForm
 
-    # def get(self, request, *args, **kwargs):
-    #     boards = Boards.objects.all()
-    #     board_form = self.board_form_class
-    #     template_name = 'sns/home.html'
-    #     context = {
-    #         'boards': boards,
-    #         'board_form': board_form
-    #     }
-    #     content = render_to_string(template_name, context, self.request)
-    #     data = {
-    #         "content": content
-    #     }
-    #     return JsonResponse(data)
-    
     def get_context_data(self, **kwargs):
         context =  super().get_context_data(**kwargs)
         boards = Boards.objects.all()
         board_form = self.board_form_class
-        context['boards'] = boards
+        board_items = []
+        for i in boards:
+            # board_items['user'] = i.user
+            # board_items['user_profile'] = i.user_profile
+            # board_items['picture1'] = i.picture1
+            # board_items['picture2'] = i.picture2
+            # board_items['picture3'] = i.picture3
+            # board_items['picture4'] = i.picture4
+            # board_items['picture5'] = i.picture5
+            # board_items['picture6'] = i.picture6
+            # board_items['picture7'] = i.picture7
+            # board_items['picture8'] = i.picture8
+            # board_items['picture9'] = i.picture9
+            # board_items['picture10'] = i.picture10
+            # board_items['description'] = i.description
+            # board_items['create_at'] = i.create_at
+            likes = BoardsLikes.objects.filter(board=i).all().count()
+            like_first_people = BoardsLikes.objects.filter(board=i).first()
+            comments = BoardsComments.objects.filter(board=i).all()
+            items = {
+                'item': i,
+                'likes': likes,
+                'like_first_people': like_first_people,
+                'comments': comments
+            }
+            board_items.append(items)
+        context['boards'] = board_items
         context['board_form'] = board_form
         return context
     
@@ -259,7 +271,6 @@ class HomeView(LoginRequiredMixin, TemplateView):
             return redirect('sns:home')
         return redirect('sns:home')
 
-    
     def boards_to_dictionary(self, boards):
         picture_exits = []
         for i in range(1, 11):

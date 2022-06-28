@@ -16,7 +16,9 @@ window.addEventListener('DOMContentLoaded', function (){
                 }
                 position += 1;
             }
-            board.style.transform += "translateX(-100%)";
+            let styleLeft = board.style.left;
+            let left = Number(styleLeft.replace(/%/g, ""));
+            board.style.left = (left-100) + "%";
             board.children[position].classList.remove("target");
             board.children[position + 1].classList.add("target");
             e.target.parentNode.previousElementSibling.previousElementSibling.classList.remove("none");
@@ -36,7 +38,9 @@ window.addEventListener('DOMContentLoaded', function (){
                 }
                 position += 1;
             }
-            board.style.transform += "translateX(100%)";
+            let styleLeft = board.style.left;
+            let left = Number(styleLeft.replace(/%/g, ""));
+            board.style.left = (left+100) + "%";
             board.children[position].classList.remove("target");
             board.children[position - 1].classList.add("target");
             e.target.parentNode.nextElementSibling.classList.remove("none");
@@ -47,6 +51,4 @@ window.addEventListener('DOMContentLoaded', function (){
             }
         }
     });
-    let before = document.getElementById("before");
-    console.log(before);
 });
