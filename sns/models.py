@@ -1,12 +1,9 @@
-from asyncio import constants
 from datetime import datetime, timedelta
 from uuid import uuid4
 import os
-import uuid
 
 from django.db import models
 from django.contrib.auth.models import (BaseUserManager, AbstractBaseUser, PermissionsMixin)
-from django.urls import reverse_lazy
 from django.dispatch import receiver
 from django.db.models.signals import post_save, post_delete
 

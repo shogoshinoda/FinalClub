@@ -18,7 +18,13 @@
                         <h2 class="username-text">{{ host_user.username }}</h2>
                     </div>
                     <div class="action-message">メッセージを送信</div>
-                    <div class="follow-action">フォローする</div>
+                    {% if  follow == "self" %}
+                    <div class="follow-action">プロフィール更新</div>
+                    {% elif follow == "followed" %}
+                    <div class="follow-action"><a class="" href="{% url 'sns:clear_follow' host_user.username %}">フォローを解除</a></div>
+                    {% else %}
+                    <div class="follow-action"><a class="" href="{% url 'sns:follow' host_user.username %}">フォローをする</a></div>
+                    {% endif %}
                     <div class="setting"><img src="{% static 'sns/img/home/three_point.svg' %}" alt=""></div>
                 </div>
                 <div class="middle">

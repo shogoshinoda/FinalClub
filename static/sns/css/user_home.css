@@ -6,6 +6,7 @@
     width: 100%;
     opacity: 100;
     padding: 70px 20px 0;
+    min-height: 100vh;
 }
 
 .user-home-wrap > .profile-wrap {
@@ -77,7 +78,7 @@
     line-height: 18px;
     margin-right: 5px;
 }
-.follow-action {
+.follow-action > a {
     background-color: transparent;
     border: 1px solid rgb(219, 219, 219);
     border-radius: 5px;

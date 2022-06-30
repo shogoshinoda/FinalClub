@@ -1,7 +1,6 @@
 import re
 from datetime import datetime
 from string import ascii_uppercase, ascii_lowercase, digits
-from PIL import Image
 
 from django import forms
 from django.contrib.auth.forms import ReadOnlyPasswordHashField

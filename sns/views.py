@@ -7,6 +7,13 @@ from django.core.mail import send_mail
 from django.contrib.auth import authenticate, login
 from django.contrib import messages
 
+
+from django.shortcuts import render
+from django.http import HttpResponse
+from django_celery_results.models import TaskResult
+from django.template import loader
+from .tasks import add
+
 from .models import (FollowFollowerUser, Users, UserProfiles, UserAffiliation,
                      UserActivateTokens, UserInviteToken, Boards,
                      BoardsLikes, BoardsComments)
@@ -301,7 +308,14 @@ class UserHomeView(LoginRequiredMixin, TemplateView):
         number_of_board = boards.count()
         count_follow = FollowFollowerUser.objects.count_follow(follow_user=host_user.user)
         count_follower = FollowFollowerUser.objects.count_follower(follower_user=host_user.user)
-        username = UserProfiles.objects.get(user=self.request.user).username
+        self_user = UserProfiles.objects.get(user=self.request.user)
+        username = self_user.username
+        if host_user == self_user:
+            context['follow'] = 'self'
+        elif FollowFollowerUser.objects.filter(follow_user=self_user.user, follower_user=host_user.user):
+            context['follow'] = 'followed'
+        else:
+            context['follow'] = 'follow'
         context['host_user'] = host_user
         context['boards'] = boards
         context['number_of_board'] = number_of_board
@@ -309,8 +323,38 @@ class UserHomeView(LoginRequiredMixin, TemplateView):
         context['count_follower'] = count_follower
         context['username'] = username
         return context
-    
+
+def follow(request, username):
+    self_user = Users.objects.get(id=request.user.id)
+    user = UserProfiles.objects.get(username=username).user
+    if FollowFollowerUser.objects.filter(follow_user=self_user, follower_user=user):
+        return redirect('sns:user_home', username)
+    follow = FollowFollowerUser(
+        follow_user = self_user,
+        follower_user = user
+    )
+    follow.save()
+    return redirect('sns:user_home', username)
+
+def clear_follow(request, username):
+    self_user = Users.objects.get(id=request.user.id)
+    user = UserProfiles.objects.get(username=username).user
+    clear_follow = FollowFollowerUser.objects.filter(follow_user=self_user, follower_user=user)
+    clear_follow.delete()
+    return redirect('sns:user_home', username)
 
 
 
 
+def celery(requests):
+    template = loader.get_template('sns/celery.html')
+    if 'add_button' in requests.POST:
+        x = int(requests.POST['input_a'])
+        y = int(requests.POST["input_b"])
+        task_id = add.delay(x,y)
+
+    result = list(TaskResult.objects.all().values_list("result",flat=True))
+    if len(result) == 0:
+        result = [0]
+    context = {'result': result[0]}
+    return HttpResponse(template.render(context, requests))
