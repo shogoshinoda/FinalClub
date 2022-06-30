@@ -21,8 +21,10 @@ window.addEventListener('DOMContentLoaded', function (){
             board.style.left = (left-100) + "%";
             board.children[position].classList.remove("target");
             board.children[position + 1].classList.add("target");
+            e.target.parentNode.nextElementSibling.children[position].classList.remove("blue");
+            e.target.parentNode.nextElementSibling.children[position + 1].classList.add("blue");
             e.target.parentNode.previousElementSibling.previousElementSibling.classList.remove("none");
-            e.target.parentNode.previousElementSibling.previousElementSibling.previousElementSibling.classList.remove("none")
+            e.target.parentNode.previousElementSibling.previousElementSibling.previousElementSibling.classList.remove("none");
             if (position+2 === boardPictureCount) {
                 e.target.parentNode.classList.add("none");
                 e.target.parentNode.previousElementSibling.classList.add("none");
@@ -43,6 +45,8 @@ window.addEventListener('DOMContentLoaded', function (){
             board.style.left = (left+100) + "%";
             board.children[position].classList.remove("target");
             board.children[position - 1].classList.add("target");
+            e.target.parentNode.nextElementSibling.nextElementSibling.nextElementSibling.children[position].classList.remove("blue");
+            e.target.parentNode.nextElementSibling.nextElementSibling.nextElementSibling.children[position - 1].classList.add("blue");
             e.target.parentNode.nextElementSibling.classList.remove("none");
             e.target.parentNode.nextElementSibling.nextElementSibling.classList.remove("none");
             if (position-1 === 0){

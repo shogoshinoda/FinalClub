@@ -215,12 +215,12 @@ class HomeView(LoginRequiredMixin, TemplateView):
         boards = Boards.objects.all()
         board_form = self.board_form_class
         board_items = []
-        for i in boards:
-            likes = BoardsLikes.objects.filter(board=i).all().count()
-            like_first_people = BoardsLikes.objects.filter(board=i).first()
-            comments = BoardsComments.objects.filter(board=i).all()
+        for board in boards:
+            likes = BoardsLikes.objects.filter(board=board).all().count()
+            like_first_people = BoardsLikes.objects.filter(board=board).first()
+            comments = BoardsComments.objects.filter(board=board).all()
             items = {
-                'item': i,
+                'item': board,
                 'likes': likes,
                 'like_first_people': like_first_people,
                 'comments': comments

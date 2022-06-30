@@ -31,9 +31,38 @@
                 </div>
                 <div class="board-picture-wrap">
                     <div class="board-picture">
+                        {% if board.item.picture1 %}
                         <img src="{{ board.item.picture1.url }}" class="target" alt="">
+                        {% endif %}
+                        {% if board.item.picture2 %}
                         <img src="{{ board.item.picture2.url }}" alt="">
+                        {% endif %}
+                        {% if board.item.picture3 %}
+                        <img src="{{ board.item.picture3.url }}" alt="">
+                        {% endif %}
+                        {% if board.item.picture4 %}
+                        <img src="{{ board.item.picture4.url }}" alt="">
+                        {% endif %}
+                        {% if board.item.picture5 %}
+                        <img src="{{ board.item.picture5.url }}" alt="">
+                        {% endif %}
+                        {% if board.item.picture6 %}
+                        <img src="{{ board.item.picture6.url }}" alt="">
+                        {% endif %}
+                        {% if board.item.picture7 %}
+                        <img src="{{ board.item.picture7.url }}" alt="">
+                        {% endif %}
+                        {% if board.item.picture8 %}
+                        <img src="{{ board.item.picture8.url }}" alt="">
+                        {% endif %}
+                        {% if board.item.picture9 %}
+                        <img src="{{ board.item.picture9.url }}" alt="">
+                        {% endif %}
+                        {% if board.item.picture10 %}
+                        <img src="{{ board.item.picture10.url }}" alt="">
+                        {% endif %}
                     </div>
+                    {% if board.item.picture2 %}
                     <div class="navigator-before-shadow none"></div>
                     <button class="navigator-before none" id="before">
                         <div class="before"></div>
@@ -42,6 +71,37 @@
                     <button class="navigator-next">
                         <div class="next"></div>
                     </button>
+                    {% endif %}
+                    <div id="pointerPosition" class="position-wrap">
+                        {% if board.item.picture2 %}
+                        <div class="position blue"></div>
+                        <div class="position"></div>
+                        {% endif %}
+                        {% if board.item.picture3 %}
+                        <div class="position"></div>
+                        {% endif %}
+                        {% if board.item.picture4 %}
+                        <div class="position"></div>
+                        {% endif %}
+                        {% if board.item.picture5 %}
+                        <div class="position"></div>
+                        {% endif %}
+                        {% if board.item.picture6 %}
+                        <div class="position"></div>
+                        {% endif %}
+                        {% if board.item.picture7 %}
+                        <div class="position"></div>
+                        {% endif %}
+                        {% if board.item.picture8 %}
+                        <div class="position"></div>
+                        {% endif %}
+                        {% if board.item.picture9 %}
+                        <div class="position"></div>
+                        {% endif %}
+                        {% if board.item.picture10 %}
+                        <div class="position"></div>
+                        {% endif %}
+                    </div>
                 </div>
                 <div class="board-footer">
                     <div class="board-action-wrap">
@@ -51,7 +111,10 @@
                     </div>
                     <div class="board-like-list">
                         <div class="like-list">
-                            <span class="strong">line3888、その他</span>が「いいね！」しました                        </div>
+                            {% if board.like_first_people %}
+                            <span class="strong">{{ board.like_first_people }}、その他</span>が「いいね！」しました                        </div>
+                            {% endif %}
+                        </div>
                     </div>
                     <div class="board-description-container">
                         <div class="board-description-wrap">
