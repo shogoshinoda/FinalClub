@@ -4,14 +4,12 @@
     <meta charset="UTF-8">
     <title>{% block title %}FS {% endblock %}</title>
     {% load static %}
-    <link rel="stylesheet" href="{% static 'sns/css/bootstrap-reboot.css' %}">
+    {% comment %} <link rel="stylesheet" href="{% static 'sns/css/bootstrap-reboot.css' %}"> {% endcomment %}
     <link rel="stylesheet" href="{% static 'sns/css/base.css' %}">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script&display=swap" rel="stylesheet">
-    {% comment %} <script src="{% static 'sns/js/jquery-3.6.0.min.js' %}"></script> {% endcomment %}
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    {% comment %} <script src="{% static 'sns/js/ajax.js' %}"></script> {% endcomment %}
+    <link rel="icon" href="data:,">
+    {% comment %} <link rel="preconnect" href="https://fonts.googleapis.com"> {% endcomment %}
+    {% comment %} <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin> {% endcomment %}
+    {% comment %} <link href="https://fonts.googleapis.com/css2?family=Dancing+Script&display=swap" rel="stylesheet"> {% endcomment %}
     {% block file %}
     {% endblock %}
 </head>
@@ -281,7 +279,7 @@
                     <hr class="line">
                     <div class="logout-wrap">
                         <div class="logout-content">
-                            <a href="" class="logout">ログアウト</a>
+                            <a href="{% url 'sns:logout' %}" class="logout">ログアウト</a>
                         </div>
                     </div>
                 </div>
@@ -293,6 +291,8 @@
 </div>
 {% block content %}
 {% endblock %}
+<script src="{% static 'sns/js/jquery-3.6.0.min.js' %}"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="{% static 'sns/js/base.js' %}" ></script>
 {% comment %} <script src="{% static 'sns/js/async.js' %}"></script> {% endcomment %}
 </body>

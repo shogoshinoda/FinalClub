@@ -3,12 +3,12 @@
 {% block file %}
 {% load static %}
 <link rel="stylesheet" href="{% static 'sns/css/home.css' %}">
-<link rel="stylesheet" href="{% static 'sns/css/croppie.css' %}">
+<link rel="stylesheet" href="{% static 'sns/css/cropper.css' %}">
 {% endblock %}
 {% block content %}
 <div class="home-wrap">
 <div class="home-container">
-    <div class="left-container">
+    <div id="left-container" class="left-container">
         {% for board in boards %}
         <div class="board-container">
             <div class="board-wrap">
@@ -143,46 +143,67 @@
     </div>
     <div class="right-container">
         <div class="create-board" id="create-board">
-            <div class="form">
-                <form id="create_boards_form" action="" method="POST" enctype="multipart/form-data" data-url="{% url 'sns:home' %}">
-                    {% csrf_token %}
-                    {{ board_form }}
-                    <input id="submit" type="submit" value="送信">
-                </form>
+            <div class="post"><button id="post">投稿する</button></div>
+            <div id="select-post-type-container" class="select-post-type-container none">
+                <div class="select-post-type-wrap">
+                    <div class="header-text">新規投稿を作成</div>
+                    <div class="type">
+                        <div id="text-type" class="text-type"><button id="text-type-btn">テキストを投稿</button></div>
+                        <div id="photo-type" class="photo-type"><button id="photo-type-btn">写真を投稿</button></div>
+                    </div>
+                </div>
+                <div class="cancel-btn"><button id="cancel-btn">
+                    <span class="cancel-l-a"></span>
+                    <span class="cancel-l-b"></span>
+                </button></div>
             </div>
-        </div>
-        <div class="create-bord-form-container">
-            <div class="back"></div>
-        </div>
+            <div id="crop-image-container" class="crop-image-container none">
+                <div class="crop-image-wrap">
+                    <div class="crop-header">
+                        <div class="back-page"><button id="back-page">戻る</button></div>
+                        <div class="header-text">切り取り</div>
+                        <div class="next-page"><button id="next-page">次へ</button></div>
+                    </div>
+                    <div class="crop-image-box">
+                        <div class="image-workspace">
+                            <img src="" alt="">
+                            <span>Image Work Space</span>
+                        </div>
+                        <div class="input-crop-image">
+                            <form id="create_boards_form" action="" method="POST" enctype="multipart/form-data">
+                                {% csrf_token %}
+                                <div class="action-button">
+                                    <button class="upload">Upload</button>
+                                    <input type="file" style="" accept="image/*"  class="hidden-upload">
+                                    <button type="button">Submit</button>
+                                </div>
+<!--                                <input type="file" name="picture2" accept="image/*" id="id_picture2" class="board-input">-->
+<!--                                <input type="file" name="picture3" accept="image/*" id="id_picture3" class="board-input">-->
+<!--                                <input type="file" name="picture4" accept="image/*" id="id_picture4" class="board-input">-->
+<!--                                <input type="file" name="picture5" accept="image/*" id="id_picture5" class="board-input">-->
+<!--                                <input type="file" name="picture6" accept="image/*" id="id_picture6" class="board-input">-->
+<!--                                <input type="file" name="picture7" accept="image/*" id="id_picture7" class="board-input">-->
+<!--                                <input type="file" name="picture8" accept="image/*" id="id_picture8" class="board-input">-->
+<!--                                <input type="file" name="picture9" accept="image/*" id="id_picture9" class="board-input">-->
+<!--                                <input type="file" name="picture10" accept="image/*" id="id_picture10" class="board-input">-->
+                                <button id="confirm-btn">送信</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="cancel-btn"><button id="cancel-s-btn">
+                    <span class="cancel-l-a"></span>
+                    <span class="cancel-l-b"></span>
+                </button></div>
+            </div>
+            <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{board_form}}
+            <input type="submit" value="送信">
+            </form>
     </div>
 </div>
 </div>
-<!--<a class="btn btn-success btn-sm mb-2" href="#" data-toggle="modal" data-target="#uploadimageModal" role="button">プロフィール画像アップロード</a>-->
-<!--<div class="modal fade" id="uploadimageModal" tabindex="-1" role="dialog" aria-labelledby="uploadimageModalTitle" aria-hidden="true">-->
-{% comment %} </div>
-<div class="modal-dialog modal-lg modal-dialog-centered" role="document">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h5 class="modal-title">プロフィール画像をアップロード</h5>
-        </div>
-        <div class="modal-body">
-            <div class="input-group mb-3">
-                <p>プロフィールに使用する画像をアップロードし、トリミングを行った上で登録してください。</p>
-                <div class="input-group-prepend">
-                    <span class="input-group-text" id="inputGroupFileAddon">アップロード</span>
-                </div>
-                <div class="custom-file">
-                    <input type="file" name="upload_image" id="upload_image" class="custom-file-input" aria-describedby="inputGroupFileAddon" accept="image/*" />
-                    <label class="custom-file-label" for="inputGroupFile" data-browse="参照">ファイル選択...</label>
-                </div>
-            </div>
-            <div id="profileImage_croppie"></div>
-        </div>
-        <div class="modal-footer">
-            <button class="btn btn-primary btn-sm" id="post_image">画像を登録</button>
-            <button type="button" class="btn btn-secondary btn-sm ml-2" id="cancel" data-dismiss="modal">キャンセル</button>
-        </div>
-    </div>
-</div> {% endcomment %}
+<script src="{% static 'sns/js/cropper.js' %}"></script>
 <script src="{% static 'sns/js/home.js' %}"></script>
 {% endblock %}

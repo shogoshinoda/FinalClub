@@ -1,3 +1,14 @@
+import os
+import base64
+from types import new_class
+import cv2
+import numpy as np
+import string
+import random
+import datetime
+from io import BytesIO
+from PIL import Image
+
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -6,6 +17,8 @@ from django.contrib.auth.views import LogoutView
 from django.core.mail import send_mail
 from django.contrib.auth import authenticate, login
 from django.contrib import messages
+from django.http import JsonResponse, HttpResponse
+from django.conf import settings
 
 
 from django.shortcuts import render
@@ -212,7 +225,7 @@ class HomeView(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context =  super().get_context_data(**kwargs)
         username = UserProfiles.objects.get(user=self.request.user).username
-        boards = Boards.objects.all()
+        boards = Boards.objects.all().order_by('create_at').reverse()
         board_form = self.board_form_class
         board_items = []
         for board in boards:
@@ -240,7 +253,11 @@ class HomeView(LoginRequiredMixin, TemplateView):
             print('success')
             print()
             picture1 = request.FILES.get('picture1')
+            print(picture1)
+            print(type(picture1))
             picture2 = request.FILES.get('picture2')
+            print(picture2)
+            print(type(picture2))
             picture3 = request.FILES.get('picture3')
             picture4 = request.FILES.get('picture4')
             picture5 = request.FILES.get('picture5')
@@ -263,6 +280,49 @@ class HomeView(LoginRequiredMixin, TemplateView):
             #     'boards': boards
             # }
             return redirect('sns:home')
+        if self.request.is_ajax():
+            
+            print('-------------------------------------------------------------------------------------------------------')
+            picture1 = request.FILES.get('picture1')
+            # picture1_data = base64.b64decode(request.POST.get('picture1').split(',')[1])
+            # picture1_binary = np.frombuffer(picture1_data, dtype=np.uint8)
+            # binary_picture1 = cv2.imdecode(picture1_binary, cv2.IMREAD_COLOR)
+            # picture1_path = self.randomname_png_path(100)
+            # cv2.imwrite(settings.MEDIA_ROOT + picture1_path, binary_picture1)
+            print('========================================')
+            
+            picture2 = request.FILES.get('picture2')
+            picture3 = request.FILES.get('picture3')
+            picture4 = request.FILES.get('picture4')
+            picture5 = request.FILES.get('picture5')
+            picture6 = request.FILES.get('picture6')
+            picture7 = request.FILES.get('picture7')
+            picture8 = request.FILES.get('picture8')
+            picture9 = request.FILES.get('picture9')
+            picture10 = request.FILES.get('picture10')
+            description = request.POST.get('description')
+            new_board = self.boards_form_save(user, user_profile, picture1, picture2, picture3, picture4, picture5,picture6,
+                                  picture7, picture8, picture9, picture10, description)
+            print('=================================')
+            user_home_url = f'/{user_profile.username}/'
+            create_at = new_board.create_at
+            data = {
+                'user': user,
+                'user_profile': user_profile,
+                'user_home_url': user_home_url,
+                'picture1': picture1.url,
+                'picture2': picture2.url,
+                'picture3': picture3.url,
+                'picture4': picture4.url,
+                'picture5': picture5.url,
+                'picture6': picture6.url,
+                'picture7': picture7.url,
+                'picture8': picture8.url,
+                'picture9': picture9.url,
+                'picture10': picture10.url,
+                'description': description,
+                'create_at': create_at
+            }
         return redirect('sns:home')
 
     def boards_to_dictionary(self, boards):
@@ -296,6 +356,21 @@ class HomeView(LoginRequiredMixin, TemplateView):
                          create_boards.save()
                          return create_boards
 
+    def randomname_png_path(self, n):
+        randlst = [random.choice(string.ascii_letters + string.digits) for i in range(n)]
+        dt = datetime.datetime.now()
+        picture_name = ''.join(randlst) + '.jpg'
+        if len(str(dt.month)) == 2:
+            if len(str(dt.day)) == 2:
+                path = f'board_pictures/{dt.year}/{dt.month}/{dt.day}/{picture_name}'
+            else:
+                path = f'board_pictures/{dt.year}/{dt.month}/0{dt.day}/{picture_name}'
+        else:
+            if len(str(dt.day)) == 2:
+                path = f'board_pictures/{dt.year}/0{dt.month}/{dt.day}/{picture_name}'
+            else:
+                path = f'board_pictures/{dt.year}/0{dt.month}/0{dt.day}/{picture_name}'           
+        return path
 
 # 個人画面
 class UserHomeView(LoginRequiredMixin, TemplateView):

@@ -34,6 +34,7 @@ html {
     height: var(--header-height);
     background-color: white;
     position: fixed;
+    top: 0;
     z-index: 1000;
     width: 100%;
 }
