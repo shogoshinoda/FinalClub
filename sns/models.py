@@ -264,6 +264,9 @@ class BoardsComments(models.Model):
     user = models.ForeignKey(
         'Users', on_delete=models.CASCADE
     )
+    user_profile = models.ForeignKey(
+        'UserProfiles', on_delete=models.CASCADE
+    )
     board = models.ForeignKey(
         'Boards', on_delete=models.CASCADE
     )
@@ -399,7 +402,7 @@ def create_follow_notification(sender, instance, **kwargs):
     follower_user = user.follower
     follow_user = user.follow
     follow_notification = Notifications(
-        user=follower_user,
+        receiver=follower_user,
         action_user=follow_user,
         action_id=1
     )
@@ -414,7 +417,7 @@ def create_like_notification(sender, instance, **kwargs):
     action_id = 2
     board = ins.board
     like_notification = Notifications(
-        user=user,
+        receiver=user,
         action_user=action_user,
         action_id=action_id,
         board=board
@@ -430,7 +433,7 @@ def create_comment_notification(sender, instance, **kwargs):
     action_id = 3
     board = ins.board
     comment_notification = Notifications(
-        user=user,
+        receiver=user,
         action_user=action_user,
         action_id=action_id,
         board=board

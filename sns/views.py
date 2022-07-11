@@ -1,13 +1,6 @@
-import os
-import base64
-from types import new_class
-import cv2
-import numpy as np
 import string
 import random
 import datetime
-from io import BytesIO
-from PIL import Image
 
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
@@ -18,14 +11,12 @@ from django.core.mail import send_mail
 from django.contrib.auth import authenticate, login
 from django.contrib import messages
 from django.http import JsonResponse, HttpResponse
-from django.conf import settings
-
+from django.db.models import Q
 
 from django.shortcuts import render
 from django.http import HttpResponse
 from django_celery_results.models import TaskResult
 from django.template import loader
-from .tasks import add
 
 from .models import (FollowFollowerUser, Users, UserProfiles, UserAffiliation,
                      UserActivateTokens, UserInviteToken, Boards,
@@ -224,7 +215,8 @@ class HomeView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context =  super().get_context_data(**kwargs)
-        username = UserProfiles.objects.get(user=self.request.user).username
+        user = Users.objects.get(id=self.request.user.id)
+        username = UserProfiles.objects.get(user=user).username
         boards = Boards.objects.all().order_by('create_at').reverse()
         board_form = self.board_form_class
         board_items = []
@@ -232,11 +224,18 @@ class HomeView(LoginRequiredMixin, TemplateView):
             likes = BoardsLikes.objects.filter(board=board).all().count()
             like_first_people = BoardsLikes.objects.filter(board=board).first()
             comments = BoardsComments.objects.filter(board=board).all()
+            comment_count = comments.count()
+            if BoardsLikes.objects.filter(board=board, user=user):
+                liked = 1
+            else:
+                liked = 0
             items = {
                 'item': board,
                 'likes': likes,
+                'liked': liked,
                 'like_first_people': like_first_people,
-                'comments': comments
+                'comments': comments,
+                'comment_count': comment_count
             }
             board_items.append(items)
         context['boards'] = board_items
@@ -245,52 +244,11 @@ class HomeView(LoginRequiredMixin, TemplateView):
         return context
     
     def post(self, request, *args, **kwargs):
-        board_form = self.board_form_class(request.POST or None, request.FILES or None)
         user = Users.objects.get(id=self.request.user.id)
         user_profile = UserProfiles.objects.get(user=self.request.user.id)
-        if board_form.is_valid():
-            print()
+        if request.POST.get('action_type') == 'board':
             print('success')
-            print()
             picture1 = request.FILES.get('picture1')
-            print(picture1)
-            print(type(picture1))
-            picture2 = request.FILES.get('picture2')
-            print(picture2)
-            print(type(picture2))
-            picture3 = request.FILES.get('picture3')
-            picture4 = request.FILES.get('picture4')
-            picture5 = request.FILES.get('picture5')
-            picture6 = request.FILES.get('picture6')
-            picture7 = request.FILES.get('picture7')
-            picture8 = request.FILES.get('picture8')
-            picture9 = request.FILES.get('picture9')
-            picture10 = request.FILES.get('picture10')
-            description = request.POST.get('description')
-            new_board = self.boards_form_save(user, user_profile, picture1, picture2, picture3, picture4, picture5,picture6,
-                                  picture7, picture8, picture9, picture10, description)
-            # boards = Boards.objects.all()
-            # tempBoards = []
-            # for i in range(len(boards)):
-            #     tempBoards.append(self.boards_to_dictionary(boards[i]))
-            # boards = tempBoards
-            # board = self.boards_to_dictionary(new_board)
-            # params = {
-            #     'description': new_board.description,
-            #     'boards': boards
-            # }
-            return redirect('sns:home')
-        if self.request.is_ajax():
-            
-            print('-------------------------------------------------------------------------------------------------------')
-            picture1 = request.FILES.get('picture1')
-            # picture1_data = base64.b64decode(request.POST.get('picture1').split(',')[1])
-            # picture1_binary = np.frombuffer(picture1_data, dtype=np.uint8)
-            # binary_picture1 = cv2.imdecode(picture1_binary, cv2.IMREAD_COLOR)
-            # picture1_path = self.randomname_png_path(100)
-            # cv2.imwrite(settings.MEDIA_ROOT + picture1_path, binary_picture1)
-            print('========================================')
-            
             picture2 = request.FILES.get('picture2')
             picture3 = request.FILES.get('picture3')
             picture4 = request.FILES.get('picture4')
@@ -303,26 +261,78 @@ class HomeView(LoginRequiredMixin, TemplateView):
             description = request.POST.get('description')
             new_board = self.boards_form_save(user, user_profile, picture1, picture2, picture3, picture4, picture5,picture6,
                                   picture7, picture8, picture9, picture10, description)
-            print('=================================')
             user_home_url = f'/{user_profile.username}/'
-            create_at = new_board.create_at
-            data = {
-                'user': user,
-                'user_profile': user_profile,
-                'user_home_url': user_home_url,
-                'picture1': picture1.url,
-                'picture2': picture2.url,
-                'picture3': picture3.url,
-                'picture4': picture4.url,
-                'picture5': picture5.url,
-                'picture6': picture6.url,
-                'picture7': picture7.url,
-                'picture8': picture8.url,
-                'picture9': picture9.url,
-                'picture10': picture10.url,
-                'description': description,
-                'create_at': create_at
-            }
+            data = dict()
+            data['username'] = user_profile.username
+            data['user_img'] = user_profile.user_icon.url
+            data['user_home_url'] = user_home_url
+            data['create_at'] = new_board.create_at.strftime('%Y年%m月%d日%H:%M')
+            picture_count = 0
+            for i in range(1, 11):
+                picture = 'picture' + str(i)
+                new_board_obj = 'new_board.' + picture
+                new_board_obj_url = 'new_board.' + picture +'.url'
+                if eval(new_board_obj):
+                    data[picture] = eval(new_board_obj_url)
+                    picture_count += 1
+            if new_board.description:
+                data['description'] = new_board.description
+            data['picture_count'] = picture_count
+            data['board_id'] = new_board.id
+            return JsonResponse(data)
+        if request.POST.get('action_type') == 'search_user':
+            search_text = request.POST.get('search_text')
+            results = UserProfiles.objects.filter(Q(username__icontains = search_text) | Q(nickname__icontains = search_text))
+            data = dict()
+            users_data = []
+            count = 0
+            for result in results:
+                if count == 50:
+                    break
+                user_data = dict()
+                user_data['user_icon']= result.user_icon.url
+                user_data['username'] = result.username
+                user_data['nickname'] = result.nickname
+                user_data['user_home_url'] = f'/{result.username}/'
+                users_data.append(user_data)
+                count += 1
+            data['users'] = users_data
+            print('success')
+            return JsonResponse(data)
+        if request.POST.get('action_type') == 'like':
+            board_id = request.POST.get('board_id')
+            board = Boards.objects.get(id = board_id)
+            action_user = Users.objects.get(id = self.request.user.id)
+            liking = BoardsLikes.objects.filter(board=board, user=action_user)
+            if liking:
+                liking.delete()
+                return JsonResponse({'liked': 0})
+            else:
+                board_like = BoardsLikes(
+                    board = board,
+                    user = action_user,
+                )
+                board_like.save()
+                print('success')
+                return JsonResponse({'liked': 1})
+        if request.POST.get('action_type') == 'comment':
+            board_id = request.POST.get('board_id')
+            board = Boards.objects.get(id = board_id)
+            comment = request.POST.get('comment')
+            action_user = Users.objects.get(id=self.request.user.id)
+            user_prof = UserProfiles.objects.get(user=action_user)
+            board_comments = BoardsComments(
+                user = action_user,
+                user_profile = user_prof,
+                board = board,
+                comment=comment
+            )
+            board_comments.save()
+            json_data = dict()
+            json_data['username'] = user_prof.username
+            json_data['user_home_url'] = f'/{user_prof.username}/'
+            json_data['comment'] = comment
+            return JsonResponse(json_data)
         return redirect('sns:home')
 
     def boards_to_dictionary(self, boards):
@@ -420,16 +430,3 @@ def clear_follow(request, username):
 
 
 
-
-def celery(requests):
-    template = loader.get_template('sns/celery.html')
-    if 'add_button' in requests.POST:
-        x = int(requests.POST['input_a'])
-        y = int(requests.POST["input_b"])
-        task_id = add.delay(x,y)
-
-    result = list(TaskResult.objects.all().values_list("result",flat=True))
-    if len(result) == 0:
-        result = [0]
-    context = {'result': result[0]}
-    return HttpResponse(template.render(context, requests))

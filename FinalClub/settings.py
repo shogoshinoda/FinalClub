@@ -121,6 +121,3 @@ EMAIL_HOST_USER = secret.email_user
 EMAIL_HOST_PASSWORD = secret.email_password
 EMAIL_USE_TLS = True
 
-# Celery設定
-CELERY_BROKER_URL = os.environ.get('REDIS_URL', 'redis://localhost:6379/1')
-CELERY_RESULT_BACKEND = "django-db"

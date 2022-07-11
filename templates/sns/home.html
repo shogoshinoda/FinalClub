@@ -106,13 +106,17 @@
                 <div class="board-footer">
                     <div class="board-action-wrap">
                         <div class="favorite">
-                            <img src="{% static 'sns/img/home/favorite.svg' %}" alt="">
+                            {% if board.liked %}
+                                <img class="favorite-action" src="{% static 'sns/img/home/favorite_t.svg' %}" data-boardid="{{ board.item.pk }}" alt="">
+                            {% else%}
+                                <img class="favorite-action" src="{% static 'sns/img/home/favorite.svg' %}" data-boardid="{{ board.item.pk }}" alt="">
+                            {% endif %}
                         </div>
                     </div>
                     <div class="board-like-list">
                         <div class="like-list">
                             {% if board.like_first_people %}
-                            <span class="strong">{{ board.like_first_people }}、その他</span>が「いいね！」しました                        </div>
+                            <span class="strong">{{ board.like_first_people }}、その他</span>が「いいね！」しました
                             {% endif %}
                         </div>
                     </div>
@@ -126,15 +130,30 @@
                             </div>
                         </div>
                         <div class="board-comment-list-wrap">
-                            コメント
+                            <div class="comment-head">
+                                コメント<span>{{ board.comment_count }}</span>件をすべて見る
+                            </div>
+                            {% for comment in board.comments %}
+                            <div class="comment-list">
+                                <div class="comment-username">
+                                    <a href="{% url 'sns:user_home' comment.user_profile.username %}">{{ comment.user_profile.username}}</a>
+                                </div>
+                                <div>
+                                    &nbsp;
+                                </div>
+                                <div class="comment-text">
+                                    {{ comment.comment }}
+                                </div>
+                            </div>
+                            {% endfor %}
                         </div>
                     </div>
                     <div class="board-time">
                         {{ board.item.create_at }}
                     </div>
                     <div class="board-comment-action-wrap">
-                        <input id="comment" type="text" placeholder="コメント追加...">
-                        <input class="comment-submit" type="submit" value="投稿">
+                        <input class="comment" type="text" placeholder="コメント追加...">
+                        <input class="comment-submit" type="submit" data-boardid="{{ board.item.pk }}" value="投稿">
                     </div>
                 </div>
             </div>
@@ -160,34 +179,149 @@
             <div id="crop-image-container" class="crop-image-container none">
                 <div class="crop-image-wrap">
                     <div class="crop-header">
-                        <div class="back-page"><button id="back-page">戻る</button></div>
+                        <div class="back-page"><button type="button" id="back-page">戻る</button></div>
                         <div class="header-text">切り取り</div>
-                        <div class="next-page"><button id="next-page">次へ</button></div>
+                        <div class="next-page none"><button type="button" id="next-page">次へ</button></div>
                     </div>
-                    <div class="crop-image-box">
-                        <div class="image-workspace">
-                            <img src="" alt="">
-                            <span>Image Work Space</span>
+                    <div class="crop-images-box">
+                        <div class="crop-image-box">
+                            <div class="workspace">
+                                <img src="" alt="">
+                                <span>Image Work Space</span>
+                            </div>
+                            <div class="input-crop-image">
+                                    {% csrf_token %}
+                                    <div class="picture-action-button">
+                                        <button type="button" class="upload">Upload</button>
+                                        <input type="file" style="display: none;" accept="image/*"  class="hidden-upload">
+                                        <button class="plus" type="button">PLUS</button>
+                                    </div>
+                            </div>
                         </div>
-                        <div class="input-crop-image">
-                            <form id="create_boards_form" action="" method="POST" enctype="multipart/form-data">
-                                {% csrf_token %}
-                                <div class="action-button">
-                                    <button class="upload">Upload</button>
-                                    <input type="file" style="" accept="image/*"  class="hidden-upload">
-                                    <button type="button">Submit</button>
-                                </div>
-<!--                                <input type="file" name="picture2" accept="image/*" id="id_picture2" class="board-input">-->
-<!--                                <input type="file" name="picture3" accept="image/*" id="id_picture3" class="board-input">-->
-<!--                                <input type="file" name="picture4" accept="image/*" id="id_picture4" class="board-input">-->
-<!--                                <input type="file" name="picture5" accept="image/*" id="id_picture5" class="board-input">-->
-<!--                                <input type="file" name="picture6" accept="image/*" id="id_picture6" class="board-input">-->
-<!--                                <input type="file" name="picture7" accept="image/*" id="id_picture7" class="board-input">-->
-<!--                                <input type="file" name="picture8" accept="image/*" id="id_picture8" class="board-input">-->
-<!--                                <input type="file" name="picture9" accept="image/*" id="id_picture9" class="board-input">-->
-<!--                                <input type="file" name="picture10" accept="image/*" id="id_picture10" class="board-input">-->
-                                <button id="confirm-btn">送信</button>
-                            </form>
+                        <div class="crop-image-box">
+                            <div class="workspace">
+                                <img src="" alt="">
+                                <span>Image Work Space</span>
+                            </div>
+                            <div class="input-crop-image">
+                                    <div class="picture-action-button">
+                                        <button class="input-back" type="button">Back</button>
+                                        <button type="button" class="upload">Upload</button>
+                                        <input type="file" style="display: none;" accept="image/*"  class="hidden-upload">
+                                        <button class="plus" type="button">PLUS</button>
+                                    </div>
+                            </div>
+                        </div>
+                        <div class="crop-image-box">
+                            <div class="workspace">
+                                <img src="" alt="">
+                                <span>Image Work Space</span>
+                            </div>
+                            <div class="input-crop-image">
+                                    <div class="picture-action-button">
+                                        <button class="input-back" type="button">Back</button>
+                                        <button type="button" class="upload">Upload</button>
+                                        <input type="file" style="display: none;" accept="image/*"  class="hidden-upload">
+                                        <button class="plus" type="button">PLUS</button>
+                                    </div>
+                            </div>
+                        </div>
+                        <div class="crop-image-box">
+                            <div class="workspace">
+                                <img src="" alt="">
+                                <span>Image Work Space</span>
+                            </div>
+                            <div class="input-crop-image">
+                                    <div class="picture-action-button">
+                                        <button class="input-back" type="button">Back</button>
+                                        <button type="button" class="upload">Upload</button>
+                                        <input type="file" style="display: none;" accept="image/*"  class="hidden-upload">
+                                        <button class="plus" type="button">PLUS</button>
+                                    </div>
+                            </div>
+                        </div>
+                        <div class="crop-image-box">
+                            <div class="workspace">
+                                <img src="" alt="">
+                                <span>Image Work Space</span>
+                            </div>
+                            <div class="input-crop-image">
+                                    <div class="picture-action-button">
+                                        <button class="input-back" type="button">Back</button>
+                                        <button type="button" class="upload">Upload</button>
+                                        <input type="file" style="display: none;" accept="image/*"  class="hidden-upload">
+                                        <button class="plus" type="button">PLUS</button>
+                                    </div>
+                            </div>
+                        </div>
+                        <div class="crop-image-box">
+                            <div class="workspace">
+                                <img src="" alt="">
+                                <span>Image Work Space</span>
+                            </div>
+                            <div class="input-crop-image">
+                                    <div class="picture-action-button">
+                                        <button class="input-back" type="button">Back</button>
+                                        <button type="button" class="upload">Upload</button>
+                                        <input type="file" style="display: none;" accept="image/*"  class="hidden-upload">
+                                        <button class="plus" type="button">PLUS</button>
+                                    </div>
+                            </div>
+                        </div>
+                        <div class="crop-image-box">
+                            <div class="workspace">
+                                <img src="" alt="">
+                                <span>Image Work Space</span>
+                            </div>
+                            <div class="input-crop-image">
+                                    <div class="picture-action-button">
+                                        <button class="input-back" type="button">Back</button>
+                                        <button type="button" class="upload">Upload</button>
+                                        <input type="file" style="display: none;" accept="image/*"  class="hidden-upload">
+                                        <button class="plus" type="button">PLUS</button>
+                                    </div>
+                            </div>
+                        </div>
+                        <div class="crop-image-box">
+                            <div class="workspace">
+                                <img src="" alt="">
+                                <span>Image Work Space</span>
+                            </div>
+                            <div class="input-crop-image">
+                                    <div class="picture-action-button">
+                                        <button class="input-back" type="button">Back</button>
+                                        <button type="button" class="upload">Upload</button>
+                                        <input type="file" style="display: none;" accept="image/*"  class="hidden-upload">
+                                        <button class="plus" type="button">PLUS</button>
+                                    </div>
+                            </div>
+                        </div>
+                        <div class="crop-image-box">
+                            <div class="workspace">
+                                <img src="" alt="">
+                                <span>Image Work Space</span>
+                            </div>
+                            <div class="input-crop-image">
+                                    <div class="picture-action-button">
+                                        <button class="input-back" type="button">Back</button>
+                                        <button type="button" class="upload">Upload</button>
+                                        <input id="a" type="file" style="display: none;" accept="image/*"  class="hidden-upload">
+                                        <button class="plus" type="button">PLUS</button>
+                                    </div>
+                            </div>
+                        </div>
+                        <div class="crop-image-box">
+                            <div class="workspace">
+                                <img src="" alt="">
+                                <span>Image Work Space</span>
+                            </div>
+                            <div class="input-crop-image">
+                                    <div class="picture-action-button">
+                                        <button class="input-back" type="button">Back</button>
+                                        <button type="button" class="upload">Upload</button>
+                                        <input type="file" style="display: none;" accept="image/*"  class="hidden-upload">
+                                    </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -196,11 +330,22 @@
                     <span class="cancel-l-b"></span>
                 </button></div>
             </div>
-            <form method="POST" enctype="multipart/form-data">
-            {% csrf_token %}
-            {{board_form}}
-            <input type="submit" value="送信">
-            </form>
+            <div id="description-input-container" class="description-input-container none">
+                <div class="description-input-wrap">
+                    <div class="description-input-header">
+                        <div class="back-page"><button id="back-page">戻る</button></div>
+                        <div class="header-text">コメント</div>
+                        <div class="next-page"><button type="button" id="board-upload">upload</button></div>
+                    </div>
+                    <div class="description-input-item">
+                        <textarea id="description-input" type="text" class="description-input"></textarea>
+                    </div>
+                </div>
+                <div class="cancel-btn"><button>
+                    <span class="cancel-l-a"></span>
+                    <span class="cancel-l-b"></span>
+                </button></div>
+            </div>
     </div>
 </div>
 </div>
