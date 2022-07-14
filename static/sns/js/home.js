@@ -389,6 +389,16 @@ window.addEventListener('DOMContentLoaded', function (){
                     else{
                         e.target.setAttribute('src', '/static/sns/img/home/favorite.svg')
                     }
+                    if(responce.type == 0){
+                        e.target.parentNode.parentNode.nextElementSibling.children[0].innerText = ''
+                        e.target.parentNode.parentNode.nextElementSibling.children[0].innerHTML = '<span class="strong">「いいね！」</span>した人がまだいません'
+                    } else if(responce.type == 1){
+                        e.target.parentNode.parentNode.nextElementSibling.children[0].innerText = ''
+                        e.target.parentNode.parentNode.nextElementSibling.children[0].innerHTML = '<span class="strong">' + responce.first_like + '</span>が「いいね！」しました'
+                    } else{
+                        e.target.parentNode.parentNode.nextElementSibling.children[0].innerText = ''
+                        e.target.parentNode.parentNode.nextElementSibling.children[0].innerHTML = '<span class="strong">' + responce.first_like + '、その他</span>が「いいね！」しました'
+                    }
                 },
                 cache: false,
                 contentType: false,

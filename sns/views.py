@@ -1,3 +1,4 @@
+import json
 import string
 import random
 import datetime
@@ -223,7 +224,7 @@ class HomeView(LoginRequiredMixin, TemplateView):
         for board in boards:
             likes = BoardsLikes.objects.filter(board=board).all().count()
             like_first_people = BoardsLikes.objects.filter(board=board).first()
-            comments = BoardsComments.objects.filter(board=board).all()
+            comments = BoardsComments.objects.filter(board=board).all()[:2]
             comment_count = comments.count()
             if BoardsLikes.objects.filter(board=board, user=user):
                 liked = 1
@@ -303,18 +304,44 @@ class HomeView(LoginRequiredMixin, TemplateView):
             board_id = request.POST.get('board_id')
             board = Boards.objects.get(id = board_id)
             action_user = Users.objects.get(id = self.request.user.id)
+            user_profile = UserProfiles.objects.get(user=action_user)
             liking = BoardsLikes.objects.filter(board=board, user=action_user)
+            like = BoardsLikes.objects.filter(board=board)
+            like_count = like.count()
+            json_data = dict()
             if liking:
                 liking.delete()
-                return JsonResponse({'liked': 0})
+                json_data['liked'] = 0
+                json_data['like_count'] = like_count - 1
+                if like_count >= 3:
+                    json_data['type'] = 2
+                    first_like = like.first()
+                    json_data['first_like'] = first_like.user_profile.username
+                    return JsonResponse(json_data)
+                elif like_count == 2:
+                    json_data['type'] = 1
+                    first_like = like.first()
+                    json_data['first_like'] = first_like.user_profile.username
+                    return JsonResponse(json_data)
+                else:
+                    json_data['type'] = 0
+                    return JsonResponse(json_data)
             else:
                 board_like = BoardsLikes(
                     board = board,
                     user = action_user,
+                    user_profile=user_profile,
                 )
                 board_like.save()
-                print('success')
-                return JsonResponse({'liked': 1})
+                first_like = like.first()
+                json_data['first_like'] = first_like.user_profile.username
+                json_data['liked'] = 1
+                json_data['like_count'] = like_count + 1
+                if like_count >= 1:
+                    json_data['type'] = 2
+                else:
+                    json_data['type'] = 1
+                return JsonResponse(json_data)
         if request.POST.get('action_type') == 'comment':
             board_id = request.POST.get('board_id')
             board = Boards.objects.get(id = board_id)
@@ -408,6 +435,143 @@ class UserHomeView(LoginRequiredMixin, TemplateView):
         context['count_follower'] = count_follower
         context['username'] = username
         return context
+    
+    def post(self, request, *args, **kwargs):
+        if request.POST.get('action_type') == 'search_user':
+            search_text = request.POST.get('search_text')
+            results = UserProfiles.objects.filter(Q(username__icontains = search_text) | Q(nickname__icontains = search_text))
+            data = dict()
+            users_data = []
+            count = 0
+            for result in results:
+                if count == 50:
+                    break
+                user_data = dict()
+                user_data['user_icon']= result.user_icon.url
+                user_data['username'] = result.username
+                user_data['nickname'] = result.nickname
+                user_data['user_home_url'] = f'/{result.username}/'
+                users_data.append(user_data)
+                count += 1
+            data['users'] = users_data
+            print('success')
+            return JsonResponse(data)
+
+
+# 掲示板画面
+class BoardView(LoginRequiredMixin, TemplateView):
+    template_name = 'sns/board.html'
+
+    def get_context_data(self, **kwargs):
+        user = Users.objects.get(id=self.request.user.id)
+        username = UserProfiles.objects.get(user=user).username
+        context = super().get_context_data(**kwargs)
+        board = Boards.objects.get(id=self.kwargs.get('board_id'))
+        like = BoardsLikes.objects.filter(board=board)
+        if like.count() >= 2:
+            like_count = 2
+        elif like.count() == 0:
+            like_count = 0
+        else:
+            like_count = 1
+        if BoardsLikes.objects.filter(board=board, user=user):
+            liked = 1
+        else:
+            liked = 0
+        comment = BoardsComments.objects.filter(board=board)
+        context['board'] = board
+        context['like'] = like.first()
+        context['like_count'] = like_count
+        context['comments'] = comment
+        context['username'] = username
+        context['liked'] = liked
+        return context
+    
+    def post(self, request, *args, **kwargs):
+
+        if request.POST.get('action_type') == 'like':
+            board_id = request.POST.get('board_id')
+            board = Boards.objects.get(id = board_id)
+            action_user = Users.objects.get(id = self.request.user.id)
+            user_profile = UserProfiles.objects.get(user=action_user)
+            liking = BoardsLikes.objects.filter(board=board, user=action_user)
+            like = BoardsLikes.objects.filter(board=board)
+            like_count = like.count()
+            json_data = dict()
+            if liking:
+                liking.delete()
+                json_data['liked'] = 0
+                json_data['like_count'] = like_count - 1
+                if like_count >= 3:
+                    json_data['type'] = 2
+                    first_like = like.first()
+                    json_data['first_like'] = first_like.user_profile.username
+                    return JsonResponse(json_data)
+                elif like_count == 2:
+                    json_data['type'] = 1
+                    first_like = like.first()
+                    json_data['first_like'] = first_like.user_profile.username
+                    return JsonResponse(json_data)
+                else:
+                    json_data['type'] = 0
+                    return JsonResponse(json_data)
+            else:
+                board_like = BoardsLikes(
+                    board = board,
+                    user = action_user,
+                    user_profile=user_profile,
+                )
+                board_like.save()
+                first_like = like.first()
+                json_data['first_like'] = first_like.user_profile.username
+                json_data['liked'] = 1
+                json_data['like_count'] = like_count + 1
+                if like_count >= 1:
+                    json_data['type'] = 2
+                else:
+                    json_data['type'] = 1
+                return JsonResponse(json_data)
+        if request.POST.get('action_type') == 'comment':
+            board_id = request.POST.get('board_id')
+            board = Boards.objects.get(id = board_id)
+            comment = request.POST.get('comment')
+            action_user = Users.objects.get(id=self.request.user.id)
+            user_prof = UserProfiles.objects.get(user=action_user)
+            board_comments = BoardsComments(
+                user = action_user,
+                user_profile = user_prof,
+                board = board,
+                comment=comment
+            )
+            board_comments.save()
+            json_data = dict()
+            json_data['username'] = user_prof.username
+            json_data['user_home_url'] = f'/{user_prof.username}/'
+            json_data['user_icon_url'] = user_prof.user_icon.url
+            json_data['comment'] = comment
+            return JsonResponse(json_data)
+        if request.POST.get('action_type') == 'search_user':
+            search_text = request.POST.get('search_text')
+            results = UserProfiles.objects.filter(Q(username__icontains = search_text) | Q(nickname__icontains = search_text))
+            data = dict()
+            users_data = []
+            count = 0
+            for result in results:
+                if count == 50:
+                    break
+                user_data = dict()
+                user_data['user_icon']= result.user_icon.url
+                user_data['username'] = result.username
+                user_data['nickname'] = result.nickname
+                user_data['user_home_url'] = f'/{result.username}/'
+                users_data.append(user_data)
+                count += 1
+            data['users'] = users_data
+            print('success')
+            return JsonResponse(data)
+        return redirect('sns:home')
+
+
 
 def follow(request, username):
     self_user = Users.objects.get(id=request.user.id)

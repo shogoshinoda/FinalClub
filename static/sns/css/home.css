@@ -244,6 +244,12 @@
     height: 40px;
     display: flex;
 }
+.comment-head > a{
+    color: rgb(142, 142, 142);
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 18px;
+}
 .comment {
     height: 100%;
     width: 85%;

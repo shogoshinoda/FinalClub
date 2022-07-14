@@ -14,6 +14,7 @@
             <div class="profile-description">
                 <div class="profile-description-wrap">
                 <div class="top">
+                    {% csrf_token %}
                     <div class="username">
                         <h2 class="username-text">{{ host_user.username }}</h2>
                     </div>
@@ -42,7 +43,7 @@
         <div class="boards-container">
             <div class="boards-wrap">
                 {% for board in boards %}
-                <div class="board"><img src="{{ board.picture1.url}}" alt=""></div>
+                <div class="board"><a href="{% url 'sns:board' board.id %}"><img src="{{ board.picture1.url}}" alt=""></a></div>
                 {% endfor %}
             </div>
         </div>

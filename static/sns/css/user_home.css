@@ -111,7 +111,7 @@
     height: 270px;
     margin: 14px;
 }
-.board > img {
+.board > a > img {
     width: 100%;
     height: 100%;;
 }

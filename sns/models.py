@@ -252,6 +252,9 @@ class BoardsLikes(models.Model):
     user = models.ForeignKey(
         'Users', on_delete=models.CASCADE
     )
+    user_profile = models.ForeignKey(
+        'UserProfiles', on_delete=models.CASCADE
+    )
 
     objects = BoardsLikesManager
 

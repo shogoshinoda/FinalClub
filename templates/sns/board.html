@@ -1,0 +1,168 @@
+{% extends "sns/base.html" %}
+{% block title %}{{ block.super }}{{ host_user.username}}{% endblock %}
+{% block file%}
+{% load static %}
+<link rel="stylesheet" href="{% static 'sns/css/board.css' %}">
+{% endblock %}
+{% block content %}
+<div class="board-container">
+    <div class="board-wrap">
+        <div class="picture-container">
+            <div class="picture-wrap">
+                {% if board.picture1 %}
+                <img src="{{ board.picture1.url }}" class="target" alt="">
+                {% endif %}
+                {% if board.picture2 %}
+                <img src="{{ board.picture2.url }}" alt="">
+                {% endif %}
+                {% if board.picture3 %}
+                <img src="{{ board.picture3.url }}" alt="">
+                {% endif %}
+                {% if board.picture4 %}
+                <img src="{{ board.picture4.url }}" alt="">
+                {% endif %}
+                {% if board.picture5 %}
+                <img src="{{ board.picture5.url }}" alt="">
+                {% endif %}
+                {% if board.picture6 %}
+                <img src="{{ board.picture6.url }}" alt="">
+                {% endif %}
+                {% if board.picture7 %}
+                <img src="{{ board.picture7.url }}" alt="">
+                {% endif %}
+                {% if board.picture8 %}
+                <img src="{{ board.picture8.url }}" alt="">
+                {% endif %}
+                {% if board.picture9 %}
+                <img src="{{ board.picture9.url }}" alt="">
+                {% endif %}
+                {% if board.picture10 %}
+                <img src="{{ board.picture10.url }}" alt="">
+                {% endif %}
+            </div>
+            <div class="navigator">
+                <div class="board-before">
+                    <button class="navigator-before"></button>
+                </div>
+                <div class="board-next">
+                    <button class="navigator-next next"></button>
+                </div>
+            </div>
+            <div class="position-wrap">
+                {% if board.picture2 %}
+                <div class="position blue"></div>
+                <div class="position"></div>
+                {% endif %}
+                {% if board.picture3 %}
+                <div class="position"></div>
+                {% endif %}
+                {% if board.picture4 %}
+                <div class="position"></div>
+                {% endif %}
+                {% if board.cture5 %}
+                <div class="position"></div>
+                {% endif %}
+                {% if board.picture6 %}
+                <div class="position"></div>
+                {% endif %}
+                {% if board.picture7 %}
+                <div class="position"></div>
+                {% endif %}
+                {% if board.picture8 %}
+                <div class="position"></div>
+                {% endif %}
+                {% if board.picture9 %}
+                <div class="position"></div>
+                {% endif %}
+                {% if board.picture10 %}
+                <div class="position"></div>
+                {% endif %}
+            </div>
+        </div>
+        <div class="right-container">
+            <div class="board-header-wrap">
+                <div class="board-header-contents">
+                    <div class="board-user-wrap">
+                        <div class="board-icon">
+                            <a href="{% url 'sns:user_home' board.user_profile.username %}"><img src="{{ board.user_profile.user_icon.url}}" alt=""></a>
+                        </div>
+                        <div class="board-username">
+                            <a href="{% url 'sns:user_home' board.user_profile.username %}">{{ board.user_profile.username }}</a>
+                        </div>
+                    </div>
+                    <div class="board-setting">
+                        <div class="three-point">
+                            <img src="{% static 'sns/img/home/three_point.svg' %}" alt="">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="board-middle-container">
+                <div class="board-middle-wrap">
+                    {% if board.description %}
+                    <div class="comments-container">
+                        <div class="comments-wrap">
+                        <div class="comment-user-icon">
+                            <a href="{% url 'sns:user_home' board.user_profile.username %}"><img src="{{ board.user_profile.user_icon.url}}" alt=""></a>
+                        </div>
+                        <div class="comment-username">
+                            <a href="{% url 'sns:user_home' board.user_profile.username %}">{{ board.user_profile.username }}</a>
+                            <div class="comment-text">
+                                {{ board.description }}
+                            </div>
+                        </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% for comment in comments %}
+                    <div class="comments-container">
+                        <div class="comments-wrap">
+                            <div class="comment-user-icon">
+                                <a href="{% url 'sns:user_home' comment.user_profile.username%}"><img src="{{ comment.user_profile.user_icon.url}}" alt=""></a>
+                            </div>
+                            <div class="comment-username">
+                                <a href="{% url 'sns:user_home' comment.user_profile.username%}">{{ comment.user_profile.username }}</a>
+                                <div class="comment-text">
+                                    {{ comment.comment }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="board-action-wrap">
+                    <div class="favorite-container">
+                        {% csrf_token %}
+                        <div class="favorite-wrap">
+                            {% if liked %}
+                                <img class="favorite-action" src="{% static 'sns/img/home/favorite_t.svg' %}" data-boardid="{{ board.pk }}" alt="">
+                            {% else%}
+                                <img class="favorite-action" src="{% static 'sns/img/home/favorite.svg' %}" data-boardid="{{ board.pk }}" alt="">
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <div class="board-like-container">
+                    <div class="like-list">
+                        {% if like_count == 0 %}
+                        <span class="strong">「いいね！」</span>した人がまだいません
+                        {% elif like_count == 1 %}
+                        <span class="strong">{{ like.user_profile.username}}</span>が「いいね！」しました
+                        {% elif like_count == 2 %}
+                        <span class="strong">{{ like.user_profile.username }}、その他</span>が「いいね！」しました
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="board-time">
+                    {{ board.create_at }}
+                </div>
+                <div class="board-comment-action-wrap">
+                    <input class="comment" type="text" placeholder="コメント追加...">
+                    <input class="comment-submit" type="submit" data-boardid="{{ board.pk }}" value="投稿する">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="{% static 'sns/js/board.js' %}"></script>
+{% endblock %}

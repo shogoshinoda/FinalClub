@@ -115,8 +115,12 @@
                     </div>
                     <div class="board-like-list">
                         <div class="like-list">
-                            {% if board.like_first_people %}
-                            <span class="strong">{{ board.like_first_people }}、その他</span>が「いいね！」しました
+                            {% if board.likes == 0 %}
+                            <span class="strong">「いいね！」</span>した人がまだいません
+                            {% elif board.likes == 1%}
+                            <span class="strong">{{ board.like_first_people.user_profile.username}}</span>が「いいね！」しました
+                            {% else %}
+                            <span class="strong">{{ board.like_first_people.user_profile.username }}、その他</span>が「いいね！」しました
                             {% endif %}
                         </div>
                     </div>
@@ -131,7 +135,7 @@
                         </div>
                         <div class="board-comment-list-wrap">
                             <div class="comment-head">
-                                コメント<span>{{ board.comment_count }}</span>件をすべて見る
+                                <a href="{% url 'sns:board' board.item.id %}">コメント<span>{{ board.comment_count }}</span>件をすべて見る<a>
                             </div>
                             {% for comment in board.comments %}
                             <div class="comment-list">
