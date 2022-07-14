@@ -2,7 +2,7 @@ from django.urls import path
 from .views import (
     SigninView, TemporaryRegistView, MainRegistView, LoginView,
     RegistCompleteView, CreateProfileView, HomeView, LogoutView,
-    UserHomeView, follow, clear_follow, BoardView
+    UserHomeView, BoardView
 )
 app_name = 'sns'
 urlpatterns = [
@@ -15,7 +15,5 @@ urlpatterns = [
     path('create_profile/', CreateProfileView.as_view(), name='create_profile'),
     path('', HomeView.as_view(), name='home'),
     path('<str:host_user>/', UserHomeView.as_view(), name='user_home'),
-    path('follow/<str:username>', follow, name='follow'),
-    path('clear_follow/<str:username>', clear_follow, name='clear_follow'),
     path('p/<str:board_id>/', BoardView.as_view(), name='board'),
 ]

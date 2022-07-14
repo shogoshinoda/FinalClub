@@ -20,11 +20,11 @@
                     </div>
                     <div class="action-message">メッセージを送信</div>
                     {% if  follow == "self" %}
-                    <div class="follow-action"><a class="" href="">プロフィール更新</a></div>
+                    <div class="follow-action profile-update"><a class="" href="">プロフィール更新</a></div>
                     {% elif follow == "followed" %}
-                    <div class="follow-action"><a class="" href="{% url 'sns:clear_follow' host_user.username %}">フォローを解除</a></div>
+                    <div class="follow-action clear-follow" data-username={{host_user.username}}>フォローを解除</div>
                     {% else %}
-                    <div class="follow-action"><a class="" href="{% url 'sns:follow' host_user.username %}">フォローをする</a></div>
+                    <div class="follow-action follow" data-username={{host_user.username}}>フォローをする</div>
                     {% endif %}
                     <div class="setting"><img src="{% static 'sns/img/home/three_point.svg' %}" alt=""></div>
                 </div>
@@ -49,4 +49,5 @@
         </div>
     </div>
 </div>
+<script src="{% static 'sns/js/user_home.js' %}"></script>
 {% endblock %}

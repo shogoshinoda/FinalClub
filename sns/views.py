@@ -437,6 +437,7 @@ class UserHomeView(LoginRequiredMixin, TemplateView):
         return context
     
     def post(self, request, *args, **kwargs):
+        user = Users.objects.get(id=self.request.user.id)
         if request.POST.get('action_type') == 'search_user':
             search_text = request.POST.get('search_text')
             results = UserProfiles.objects.filter(Q(username__icontains = search_text) | Q(nickname__icontains = search_text))
@@ -456,6 +457,25 @@ class UserHomeView(LoginRequiredMixin, TemplateView):
             data['users'] = users_data
             print('success')
             return JsonResponse(data)
+        if request.POST.get('action_type') == 'follow':
+            username = request.POST.get('username')
+            follower_user = UserProfiles.objects.get(username=username).user
+            follow = FollowFollowerUser(
+                follow_user = user,
+                follower_user = follower_user
+            )
+            follow.save()
+            count_follower = FollowFollowerUser.objects.count_follower(follower_user=follower_user)
+            return JsonResponse({'count_follower': count_follower})
+        if request.POST.get('action_type') == 'clear_follow':
+            username = request.POST.get('username')
+            follower_user = UserProfiles.objects.get(username=username).user
+            clear_follow = FollowFollowerUser.objects.filter(follow_user=user, follower_user=follower_user)
+            clear_follow.delete()
+            count_follower = FollowFollowerUser.objects.count_follower(follower_user=follower_user)
+            return JsonResponse({'count_follower': count_follower})
+
+            
 
 
 # 掲示板画面
@@ -570,27 +590,3 @@ class BoardView(LoginRequiredMixin, TemplateView):
             print('success')
             return JsonResponse(data)
         return redirect('sns:home')
-
-
-
-def follow(request, username):
-    self_user = Users.objects.get(id=request.user.id)
-    user = UserProfiles.objects.get(username=username).user
-    if FollowFollowerUser.objects.filter(follow_user=self_user, follower_user=user):
-        return redirect('sns:user_home', username)
-    follow = FollowFollowerUser(
-        follow_user = self_user,
-        follower_user = user
-    )
-    follow.save()
-    return redirect('sns:user_home', username)
-
-def clear_follow(request, username):
-    self_user = Users.objects.get(id=request.user.id)
-    user = UserProfiles.objects.get(username=username).user
-    clear_follow = FollowFollowerUser.objects.filter(follow_user=self_user, follower_user=user)
-    clear_follow.delete()
-    return redirect('sns:user_home', username)
-
-
-

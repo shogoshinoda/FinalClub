@@ -80,6 +80,14 @@
 }
 .follow-action > a {
     background-color: transparent;
+    color: rgb(38, 38, 38);
+    font-weight: 600;
+    font-size: 14px;
+    line-height: 18px;
+    margin-right: 5px;
+}
+.follow-action {
+    background-color: transparent;
     border: 1px solid rgb(219, 219, 219);
     border-radius: 5px;
     padding: 5px 9px;
@@ -88,6 +96,7 @@
     font-size: 14px;
     line-height: 18px;
     margin-right: 5px;
+    cursor: pointer;
 }
 .username-text {
     color: rgb(38, 38, 38);
