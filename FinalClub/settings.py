@@ -121,3 +121,5 @@ EMAIL_HOST_USER = secret.email_user
 EMAIL_HOST_PASSWORD = secret.email_password
 EMAIL_USE_TLS = True
 
+
+LOGOUT_REDIRECT_URL = "/login/"

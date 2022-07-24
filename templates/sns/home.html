@@ -24,7 +24,7 @@
                     </div>
                     <div class="board-setting">
                         <div class="three-point">
-                            <img src="{% static 'sns/img/home/three_point.svg' %}" alt="">
+                            <img class="board-setting-img" src="{% static 'sns/img/home/three_point.svg' %}" alt="" data-followed="{{board.followed}}" data-boardid="{{ board.item.pk }}" data-username="{{ board.item.user_profile.username }}">
                         </div>
                     </div>
                     </div>
@@ -163,6 +163,13 @@
             </div>
         </div>
         {% endfor %}
+        <div class="setting-container none">
+            <div class="setting-wrap">
+                <div class="setting-follow"></div>
+                <div class="setting-move-board">投稿へ移動</div>
+                <div class="setting-cancel">キャンセル</div>
+            </div>
+        </div>
     </div>
     <div class="right-container">
         <div class="create-board" id="create-board">

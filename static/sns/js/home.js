@@ -405,7 +405,7 @@ window.addEventListener('DOMContentLoaded', function (){
                 processData: false
             })
         }
-        if(e.target.classList.value === 'comment-submit'){
+        if(e.target.classList.value === 'comment-submit' && e.target.previousElementSibling.value){
             console.log('comment')
             var fd = new FormData()
             fd.append('csrfmiddlewaretoken', csrf[0].value)
@@ -445,6 +445,96 @@ window.addEventListener('DOMContentLoaded', function (){
                 processData: false
             })
         }
+    })
+
+    var setting_follow = document.querySelector('.setting-follow')
+    var setting_container = document.querySelector('.setting-container')
+    var setting_cancel = document.querySelector('.setting-cancel')
+    var setting_action_type = ''
+    var setting_board_id = ''
+    var board_user = ''
+    document.addEventListener('click', function(e){
+        if(e.target.classList.value == 'board-setting-img'){
+            setting_container.classList.remove('none')
+            var followed = e.target.dataset.followed
+            if(followed == 'followed'){
+                setting_action_type = 'clear_follow'
+            }else if(followed == 'follow'){
+                setting_action_type = 'follow'
+            }else{
+                setting_action_type = 'edit_board'
+            }
+            var board_id = e.target.dataset.boardid
+            setting_board_id = board_id
+            board_user = e.target.dataset.username
+            setting_follow.innerText = ''
+            if(followed == 'followed' ){
+                setting_follow.classList.remove('setting-board-edit-action')
+                setting_follow.classList.remove('setting-follow-action')
+                setting_follow.innerText = 'フォローをやめる'
+                setting_follow.classList.add('setting-follow-clear-action')
+            }else if(followed == 'follow'){
+                setting_follow.classList.remove('setting-follow-clear-action')
+                setting_follow.classList.remove('setting-board-edit-action')
+                setting_follow.innerText = 'フォローする'
+                setting_follow.classList.add('setting-follow-action')
+            }else{
+                setting_follow.classList.remove('setting-follow-clear-action')
+                setting_follow.classList.remove('setting-follow-action')
+                setting_follow.innerText = '投稿を編集する'
+                setting_follow.classList.add('setting-board-edit-action')
+            }
+        }
+        if(e.target.classList.value == 'setting-move-board'){
+            window.location.href = '/p/' + setting_board_id;
+        }
+        if(e.target.classList.value == 'setting-follow setting-follow-clear-action'){
+            console.log(board_user)
+            var fd = new FormData()
+            fd.append('csrfmiddlewaretoken', csrf[0].value)
+            fd.append('username', board_user)
+            fd.append('action_type', setting_action_type)
+            $.ajax({
+                type: 'POST',
+                url: '',
+                data: fd,
+                success(responce){
+                    setting_follow.classList.remove('setting-follow-clear-action')
+                    setting_follow.classList.remove('setting-board-edit-action')
+                    setting_follow.innerText = 'フォローする'
+                    setting_follow.classList.add('setting-follow-action')
+                    setting_action_type = 'follow'
+                },
+                cache: false,
+                contentType: false,
+                processData: false
+            })
+        }
+        if(e.target.classList.value == 'setting-follow setting-follow-action'){
+            console.log(board_user)
+            var fd = new FormData()
+            fd.append('csrfmiddlewaretoken', csrf[0].value)
+            fd.append('username', board_user)
+            fd.append('action_type', setting_action_type)
+            $.ajax({
+                type: 'POST',
+                url: '',
+                data: fd,
+                success(responce){
+                    setting_follow.classList.remove('setting-board-edit-action')
+                    setting_follow.classList.remove('setting-follow-action')
+                    setting_follow.innerText = 'フォローをやめる'
+                    setting_follow.classList.add('setting-follow-clear-action')
+                    setting_action_type = 'clear_follow'
+                },
+                cache: false,
+                contentType: false,
+                processData: false
+            })
+        }
+    })
+    setting_cancel.addEventListener('click', function(){
+        setting_container.classList.add('none')
     })
 
 })

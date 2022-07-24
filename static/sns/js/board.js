@@ -94,7 +94,7 @@ window.addEventListener('DOMContentLoaded', function(){
                 processData: false
             })
         }
-        if(e.target.classList.value === 'comment-submit'){
+        if(e.target.classList.value === 'comment-submit' && e.target.previousElementSibling.value){
             var fd = new FormData()
             fd.append('csrfmiddlewaretoken', csrf[0].value)
             fd.append('board_id', e.target.dataset.boardid)

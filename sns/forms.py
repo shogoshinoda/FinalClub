@@ -121,6 +121,8 @@ class ProfileForm(forms.ModelForm):
         fields = ['username', 'nickname', 'user_icon', 'introduction']
 
 
+    # def clean
+
 # プロフィール更新フォーム
 class UpdateProfileForm(forms.ModelForm):
     username = forms.CharField(label='ユーザ名')

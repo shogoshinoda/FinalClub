@@ -1,7 +1,9 @@
-import json
 import string
 import random
-import datetime
+from datetime import datetime, timedelta
+from xmlrpc.client import FastMarshaller
+import pytz
+import re
 
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
@@ -13,6 +15,7 @@ from django.contrib.auth import authenticate, login
 from django.contrib import messages
 from django.http import JsonResponse, HttpResponse
 from django.db.models import Q
+from django.utils.timezone import now
 
 from django.shortcuts import render
 from django.http import HttpResponse
@@ -21,7 +24,7 @@ from django.template import loader
 
 from .models import (FollowFollowerUser, Users, UserProfiles, UserAffiliation,
                      UserActivateTokens, UserInviteToken, Boards,
-                     BoardsLikes, BoardsComments)
+                     BoardsLikes, BoardsComments, Notifications)
 from .forms import (SignInForm, InviteVerificationForm, LoginForm,
                     ProfileForm, BoardsForm)
 
@@ -175,22 +178,34 @@ class CreateProfileView(LoginRequiredMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         context['create_profile_form'] = self.create_profile_form_class
         return context
+    
+    def get(self, request, *args, **kwargs):
+        user = Users.objects.get(id=self.request.user.id)
+        if UserProfiles.objects.filter(user=user):
+            return redirect('sns:home')
+        return render(self.request, 'sns/home.html')
 
     def post(self, request, *args, **kwargs):
-        create_profile_form = self.create_profile_form_class(request.POST or None, request.FILES or None)
-        if create_profile_form.is_valid():
-            username = request.POST.get('username')
-            nickname = request.POST.get('nickname')
-            user_icon = request.FILES.get('user_icon')
-            user = self.request.user
-            introduction = request.POST.get('introduction')
-            self.form_save(username, nickname, user_icon, user, introduction)
-            return redirect('sns:home')
+        user_icon = request.FILES.get('user_icon')
+        username = request.POST.get('username')
+        nickname = request.POST.get('nickname')
+        user = self.request.user
+        introduction = request.POST.get('introduction')
+        print(user_icon)
+        json_data = dict()
+        error_messages = []
+        if UserProfiles.objects.filter(username=username):
+            error_messages.append('not_username_unique')
+        if not self.match(username):
+            error_messages.append('only_number_english')
+        json_data['error_messages'] = error_messages
+        if error_messages:
+            json_data['success'] = False
+            return JsonResponse(json_data)
         else:
-            context = {
-                'create_profile_form': create_profile_form
-            }
-            return render(self.request, 'sns/create_profile.html', context)
+            json_data['success'] = True
+            self.form_save(username, nickname, user_icon, user, introduction)
+            return JsonResponse(json_data)
 
     def form_save(self, username, nickname, user_icon, user, introduction):
         create_profile = UserProfiles(
@@ -203,6 +218,8 @@ class CreateProfileView(LoginRequiredMixin, TemplateView):
         create_profile.save()
         return create_profile
 
+    def match(self, text):
+        return all(re.findall('[a-zA-Z0-9\-\_.]', i) for i in text)
 
 # ログアウト
 class LogoutView(LogoutView):
@@ -213,6 +230,7 @@ class LogoutView(LogoutView):
 class HomeView(LoginRequiredMixin, TemplateView):
     template_name = 'sns/home.html'
     board_form_class = BoardsForm
+    login_url = reverse_lazy('sns:login')
 
     def get_context_data(self, **kwargs):
         context =  super().get_context_data(**kwargs)
@@ -230,18 +248,73 @@ class HomeView(LoginRequiredMixin, TemplateView):
                 liked = 1
             else:
                 liked = 0
+            if FollowFollowerUser.objects.filter(follow_user=user, follower_user=board.user):
+                followed = 'followed'
+            elif board.user == user:
+                followed = 'mine'
+            else:
+                followed = 'follow'
             items = {
                 'item': board,
                 'likes': likes,
                 'liked': liked,
                 'like_first_people': like_first_people,
                 'comments': comments,
-                'comment_count': comment_count
+                'comment_count': comment_count,
+                'followed': followed
             }
             board_items.append(items)
         context['boards'] = board_items
         context['board_form'] = board_form
         context['username'] = username
+        notification_items = []
+        notifications = Notifications.objects.filter(receiver_id=user)
+        for notification in notifications:
+            action_user = Users.objects.get(id=notification.action_user_id)
+            action_user_profile = UserProfiles.objects.get(user=action_user)
+            receiver_user = Users.objects.get(id=notification.receiver_id)
+            receiver_user_profile = UserProfiles.objects.get(user=receiver_user)
+            board = ''
+            date = (now() - notification.create_at)
+            date_days = date.days
+            date_second = date.seconds
+            date_minute = date_second // 60
+            date_hour = date_minute // 60
+            if date_second < 60:
+                day = str(date_second) + '秒前'
+            elif date_minute < 60:
+                day = str(date_minute) + '分前'
+            elif date_hour < 60:
+                day = str(date_hour) + '時間前'
+            else:
+                for i in range(1, 8):
+                    if date_days <= i * 7:
+                        if i == 1:
+                            day = str(date_days) + '日前'
+                        day = str(i) + '週間前'
+            if notification.action_id != 1:
+                board = Boards.objects.get(id=notification.board_id)
+            followed = ''
+            if notification.action_id == 1:
+                followed = FollowFollowerUser.objects.filter(follow_user=receiver_user, follower_user=action_user)
+                if followed:
+                    followed = True
+                else:
+                    followed = False
+            comment = ''
+            if notification.action_id == 3:
+                comment = notification.comment
+            items = {
+                'action_id': notification.action_id,
+                'action_user_profile': action_user_profile,
+                'receiver_user_profile': receiver_user_profile,
+                'board': board,
+                'day': day,
+                'followed': followed,
+                'comment': comment
+            }
+            notification_items.append(items)
+        context['notifications'] = notification_items
         return context
     
     def post(self, request, *args, **kwargs):
@@ -360,7 +433,25 @@ class HomeView(LoginRequiredMixin, TemplateView):
             json_data['user_home_url'] = f'/{user_prof.username}/'
             json_data['comment'] = comment
             return JsonResponse(json_data)
+        if request.POST.get('action_type') == 'follow':
+            username = request.POST.get('username')
+            follower_user = UserProfiles.objects.get(username=username).user
+            follow = FollowFollowerUser(
+                follow_user = user,
+                follower_user = follower_user
+            )
+            follow.save()
+            count_follower = FollowFollowerUser.objects.count_follower(follower_user=follower_user)
+            return JsonResponse({'count_follower': count_follower})
+        if request.POST.get('action_type') == 'clear_follow':
+            username = request.POST.get('username')
+            follower_user = UserProfiles.objects.get(username=username).user
+            clear_follow = FollowFollowerUser.objects.filter(follow_user=user, follower_user=follower_user)
+            clear_follow.delete()
+            count_follower = FollowFollowerUser.objects.count_follower(follower_user=follower_user)
+            return JsonResponse({'count_follower': count_follower})
         return redirect('sns:home')
+
 
     def boards_to_dictionary(self, boards):
         picture_exits = []
@@ -412,8 +503,10 @@ class HomeView(LoginRequiredMixin, TemplateView):
 # 個人画面
 class UserHomeView(LoginRequiredMixin, TemplateView):
     template_name = 'sns/user_home.html'
+    login_url = reverse_lazy('sns:login')
 
     def get_context_data(self, **kwargs):
+        user = Users.objects.get(id=self.request.user.id)
         context = super().get_context_data(**kwargs)
         host_user = UserProfiles.objects.get(username=self.kwargs.get('host_user'))
         boards = Boards.objects.filter(user=host_user.user)
@@ -434,6 +527,54 @@ class UserHomeView(LoginRequiredMixin, TemplateView):
         context['count_follow'] = count_follow
         context['count_follower'] = count_follower
         context['username'] = username
+        notification_items = []
+        notifications = Notifications.objects.filter(receiver_id=user)
+        for notification in notifications:
+            action_user = Users.objects.get(id=notification.action_user_id)
+            action_user_profile = UserProfiles.objects.get(user=action_user)
+            receiver_user = Users.objects.get(id=notification.receiver_id)
+            receiver_user_profile = UserProfiles.objects.get(user=receiver_user)
+            board = ''
+            date = (now() - notification.create_at)
+            date_days = date.days
+            date_second = date.seconds
+            date_minute = date_second // 60
+            date_hour = date_minute // 60
+            if date_second < 60:
+                day = str(date_second) + '秒前'
+            elif date_minute < 60:
+                day = str(date_minute) + '分前'
+            elif date_hour < 60:
+                day = str(date_hour) + '時間前'
+            else:
+                for i in range(1, 8):
+                    if date_days <= i * 7:
+                        if i == 1:
+                            day = str(date_days) + '日前'
+                        day = str(i) + '週間前'
+            if notification.action_id != 1:
+                board = Boards.objects.get(id=notification.board_id)
+            followed = ''
+            if notification.action_id == 1:
+                followed = FollowFollowerUser.objects.filter(follow_user=receiver_user, follower_user=action_user)
+                if followed:
+                    followed = True
+                else:
+                    followed = False
+            comment = ''
+            if notification.action_id == 3:
+                comment = notification.comment
+            items = {
+                'action_id': notification.action_id,
+                'action_user_profile': action_user_profile,
+                'receiver_user_profile': receiver_user_profile,
+                'board': board,
+                'day': day,
+                'followed': followed,
+                'comment': comment
+            }
+            notification_items.append(items)
+        context['notifications'] = notification_items
         return context
     
     def post(self, request, *args, **kwargs):
@@ -481,6 +622,7 @@ class UserHomeView(LoginRequiredMixin, TemplateView):
 # 掲示板画面
 class BoardView(LoginRequiredMixin, TemplateView):
     template_name = 'sns/board.html'
+    login_url = reverse_lazy('sns:login')
 
     def get_context_data(self, **kwargs):
         user = Users.objects.get(id=self.request.user.id)
@@ -505,6 +647,54 @@ class BoardView(LoginRequiredMixin, TemplateView):
         context['comments'] = comment
         context['username'] = username
         context['liked'] = liked
+        notification_items = []
+        notifications = Notifications.objects.filter(receiver_id=user)
+        for notification in notifications:
+            action_user = Users.objects.get(id=notification.action_user_id)
+            action_user_profile = UserProfiles.objects.get(user=action_user)
+            receiver_user = Users.objects.get(id=notification.receiver_id)
+            receiver_user_profile = UserProfiles.objects.get(user=receiver_user)
+            board = ''
+            date = (now() - notification.create_at)
+            date_days = date.days
+            date_second = date.seconds
+            date_minute = date_second // 60
+            date_hour = date_minute // 60
+            if date_second < 60:
+                day = str(date_second) + '秒前'
+            elif date_minute < 60:
+                day = str(date_minute) + '分前'
+            elif date_hour < 60:
+                day = str(date_hour) + '時間前'
+            else:
+                for i in range(1, 8):
+                    if date_days <= i * 7:
+                        if i == 1:
+                            day = str(date_days) + '日前'
+                        day = str(i) + '週間前'
+            if notification.action_id != 1:
+                board = Boards.objects.get(id=notification.board_id)
+            followed = ''
+            if notification.action_id == 1:
+                followed = FollowFollowerUser.objects.filter(follow_user=receiver_user, follower_user=action_user)
+                if followed:
+                    followed = True
+                else:
+                    followed = False
+            comment = ''
+            if notification.action_id == 3:
+                comment = notification.comment
+            items = {
+                'action_id': notification.action_id,
+                'action_user_profile': action_user_profile,
+                'receiver_user_profile': receiver_user_profile,
+                'board': board,
+                'day': day,
+                'followed': followed,
+                'comment': comment
+            }
+            notification_items.append(items)
+        context['notifications'] = notification_items
         return context
     
     def post(self, request, *args, **kwargs):

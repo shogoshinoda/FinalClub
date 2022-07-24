@@ -8,6 +8,7 @@ from django.dispatch import receiver
 from django.db.models.signals import post_save, post_delete
 
 
+
 # ユーザマネージャー
 class UserManager(BaseUserManager):
 
@@ -57,7 +58,7 @@ class UserActivateTokenManager(models.Manager):
     def activate_user_by_token(self, token):
         user_activate_token = self.filter(
             token=token,
-            expired_at__gte=datetime.now()  # 現在時刻以上のものを取り出す
+            expired_at__gte= datetime.now()  # 現在時刻以上のものを取り出す
         ).first()
         user = user_activate_token.user
         user.is_active = True
@@ -66,7 +67,7 @@ class UserActivateTokenManager(models.Manager):
     def create_user_by_token(self, user):
         activate_token = self.model(
             token=uuid4(),
-            expired_at=datetime.now() + timedelta(days=1),
+            expired_at= datetime.now() + timedelta(days=1),
             user=user
         )
         activate_token.save()
@@ -394,16 +395,18 @@ class Notifications(models.Model):
     board = models.ForeignKey(
         'Boards', on_delete=models.CASCADE, null=True, blank=True
     )
+    comment = models.CharField(max_length=150, null=True, blank=True)
+    create_at = models.DateTimeField(default=datetime.now())
 
     class Meta:
         db_table = 'notifications'
 
 
-@receiver(post_save, sender=FollowFollowerUserManager)
+@receiver(post_save, sender=FollowFollowerUser)
 def create_follow_notification(sender, instance, **kwargs):
     user = instance
-    follower_user = user.follower
-    follow_user = user.follow
+    follower_user = user.follower_user
+    follow_user = user.follow_user
     follow_notification = Notifications(
         receiver=follower_user,
         action_user=follow_user,
@@ -435,11 +438,13 @@ def create_comment_notification(sender, instance, **kwargs):
     action_user = ins.user
     action_id = 3
     board = ins.board
+    comment = ins.comment
     comment_notification = Notifications(
         receiver=user,
         action_user=action_user,
         action_id=action_id,
-        board=board
+        board=board,
+        comment=comment
     )
     comment_notification.save()
 
