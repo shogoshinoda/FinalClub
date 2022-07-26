@@ -17,5 +17,5 @@ urlpatterns = [
     path('<str:host_user>/', UserHomeView.as_view(), name='user_home'),
     path('p/<str:board_id>/', BoardView.as_view(), name='board'),
     path('accounts/edit/', AccountsEditView.as_view(), name='accounts_edit'),
-    path('accounts/password/change', AccountsPasswordChange.as_view(), name='accounts_password_change'),
+    path('accounts/password/change', AccountsPasswordChangeView.as_view(), name='accounts_password_change'),
 ]

@@ -90,7 +90,7 @@ window.addEventListener('DOMContentLoaded', function (){
     }
     introduction.onchange = () => {
         submit.style.backgroundColor = 'rgb(0, 149, 246)'
-        submit.disable = false
+        submit.disabled = false
     }
 
     submit.addEventListener('click', function() {

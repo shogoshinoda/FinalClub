@@ -2,6 +2,7 @@ import string
 import random
 from datetime import datetime, timedelta
 from xmlrpc.client import FastMarshaller
+from string import ascii_uppercase, ascii_lowercase, digits
 import pytz
 import re
 
@@ -16,6 +17,8 @@ from django.contrib import messages
 from django.http import JsonResponse
 from django.db.models import Q
 from django.utils.timezone import now
+from django.contrib.auth.forms import PasswordChangeForm
+from django.contrib.auth import update_session_auth_hash
 
 from django.shortcuts import render
 from django.http import HttpResponse
@@ -25,7 +28,7 @@ from .models import (FollowFollowerUser, Users, UserProfiles, UserAffiliation,
                      UserActivateTokens, UserInviteToken, Boards,
                      BoardsLikes, BoardsComments, Notifications)
 from .forms import (SignInForm, InviteVerificationForm, LoginForm,
-                    ProfileForm, BoardsForm)
+                    ProfileForm, BoardsForm,)
 
 
 # ユーザ登録
@@ -834,8 +837,36 @@ class AccountsPasswordChangeView(TemplateView, LoginRequiredMixin):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        user = self.request.user.id
+        user = self.request.user
         user_profile = UserProfiles.objects.get(user=user)
         context['user_profile'] = user_profile
         context['username'] = user_profile.username
+        context['accounts_password_change_form'] = PasswordChangeForm(user=self.request.user)
         return context
+    
+    def post(self, request, *args, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if request.method == 'POST':
+            form = PasswordChangeForm(self.request.user, request.POST or None)
+            old_password = request.POST.get('old_password')
+            new_password1 = request.POST.get('new_password1')
+            new_password2 = request.POST.get('new_password2')
+            if new_password1 != new_password2:
+                return JsonResponse({'error_type': 'not_correct'})
+            bool_length = len(new_password1) >= 6
+            if not all([self.contain_any(new_password1, ascii_lowercase),
+                    self.contain_any(new_password1, ascii_uppercase),
+                    self.contain_any(new_password1, digits),
+                    bool_length]):
+                return JsonResponse({'error_type': 'danger'})
+            if form.is_valid():
+                form.save()
+                update_session_auth_hash(request, form.user)
+                return JsonResponse({'error_type': False})
+            else:
+                return JsonResponse({'error_type': 'not_authenticate'})
+                
+        return render(self.request, 'sns/accounts_password_change.html', context)
+    
+    def contain_any(self, password, condition_list):
+        return any([i in password for i in condition_list])

@@ -26,15 +26,19 @@ body {
     display: block;
     padding: 16px 16px 16px calc(32px - 2px);
     width: calc(100% - 48px);
+}
+.main-item {
     border-left: 1px solid rgb(38, 38, 38);
 }
 
 .subject {
     color: rgb(38, 38, 38);
-    border-left-color: rgb(38, 38, 38);
-    font-weight: 600;
+    font-weight: 400;
     font-size: 16px;
-    line-height: 24px;;
+    line-height: 20px;;
+}
+.main-subject {
+    font-weight: 600;
 }
 
 /* 右の一番上 */
@@ -64,6 +68,11 @@ body {
     font-size: 14px;
     font-weight: 600;
     line-height: 18px;
+}
+.b-name {
+    font-size: 24px;
+    font-weight: 400;
+    line-height: 48px;
 }
 
 

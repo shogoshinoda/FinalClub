@@ -7,6 +7,7 @@ from django.contrib.auth.forms import ReadOnlyPasswordHashField
 from django.core.exceptions import ValidationError
 
 
+
 from .models import (Users, UserProfiles, Boards,
                      BoardsComments, DMMessages)
 
@@ -193,3 +194,4 @@ class DMMessageForm(forms.ModelForm):
     class Meta:
         models = DMMessages
         fields = ['message']
+
