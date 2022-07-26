@@ -1,0 +1,88 @@
+{% extends "sns/base.html" %}
+{% block title %}プロフィールを編集・{{ block.super }}{% endblock %}
+{% block file%}
+{% load static %}
+<link rel="stylesheet" href="{% static 'sns/css/cropper.css' %}">
+<link rel="stylesheet" href="{% static 'sns/css/accounts_edit.css' %}">
+{% endblock %}
+{% block content %}
+<div class="accounts-edit-container">
+    <div class="accounts-edit-wrap">
+        <ul class="table-contents">
+            <li class="table-item">
+                <a class="subject" href="{% url 'sns:accounts_edit' %}">プロフィールを編集</a>
+            </li>
+        </ul>
+        <div class="main-contents">
+            {% csrf_token %}
+            <div class="top-items-conteiner">
+                <div class="top-items-wrap">
+                    <div class="user-icon-wrap">
+                        <img class="user-icon" src="{{ user_profile.user_icon.url }}">
+                    </div>
+                    <div class="user-icon-edit-wrap">
+                        <div class="name">
+                            {{ user_profile.username}}
+                        </div>
+                        <div class="user-icon-edit">
+                            <button class="user-icon-edit-button" type="button">プロフィール写真を変更</button>
+                            <input id="user-icon-input" class="none" type="file">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="main-items">
+                <div class="label">
+                    ユーザネーム
+                </div>
+                <div class="input-left">
+                    <input id="username" placeholder="username" type="text" class="user-input" value={{ user_profile.username }}>
+                    <div class="sub-text">
+                    14日間はユーザ名を{{ user_profile.username }}に戻すことができません
+                    </div>
+                </div>
+            </div>
+            <div class="main-items">
+                <div class="label">
+                    名前
+                </div>
+                <div class="input-left">
+                    <input id="nickname" placeholder="nickname" type="text" class="user-input" value={{ user_profile.nickname }}>
+                    <div class="sub-text"></div>
+                </div>
+            </div>
+            <div class="main-items">
+                <div class="label">
+                    自己紹介
+                </div>
+                <div class="input-left">
+                    <textarea id="introduction" placeholder="introduction" type="text" class="user-input">{{ user_profile.introduction }}</textarea>
+                    <div class="sub-text"></div>
+                </div>
+            </div>
+            <div class="main-items">
+                <div class="label">
+
+                </div>
+                <div class="input-left">
+                    <div class="submit">
+                        <button id="submit" type="button" disabled>送信する</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="workspace-container none">
+    <div class='workspace-wrap'>
+    <div class="workspace">
+        <img id="workspace" src='' alt='' style="width: 400px; height: 400px;">
+    </div>
+    <div class="result">
+        <button id="result-button">トリミング</button>
+    </div>
+    </div>
+</div>
+<script src="{% static 'sns/js/cropper.js' %}"></script>
+<script src="{% static 'sns/js/accounts_edit.js' %}"></script>
+{% endblock %}

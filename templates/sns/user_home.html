@@ -20,7 +20,7 @@
                     </div>
                     <div class="action-message">メッセージを送信</div>
                     {% if  follow == "self" %}
-                    <div class="follow-action profile-update"><a class="" href="">プロフィール更新</a></div>
+                    <div class="follow-action profile-update"><a class="" href="{% url 'sns:accounts_edit' %}">プロフィール更新</a></div>
                     {% elif follow == "followed" %}
                     <div class="follow-action clear-follow" data-username={{host_user.username}}>フォローを解除</div>
                     {% else %}

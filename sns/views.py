@@ -13,13 +13,12 @@ from django.contrib.auth.views import LogoutView
 from django.core.mail import send_mail
 from django.contrib.auth import authenticate, login
 from django.contrib import messages
-from django.http import JsonResponse, HttpResponse
+from django.http import JsonResponse
 from django.db.models import Q
 from django.utils.timezone import now
 
 from django.shortcuts import render
 from django.http import HttpResponse
-from django_celery_results.models import TaskResult
 from django.template import loader
 
 from .models import (FollowFollowerUser, Users, UserProfiles, UserAffiliation,
@@ -780,3 +779,63 @@ class BoardView(LoginRequiredMixin, TemplateView):
             print('success')
             return JsonResponse(data)
         return redirect('sns:home')
+
+# アカウント設定画面
+class AccountsEditView(LoginRequiredMixin, TemplateView):
+    template_name = 'sns/accounts_edit.html'
+    login_url = reverse_lazy('sns:login')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = self.request.user.id
+        user_profile = UserProfiles.objects.get(user=user)
+        context['user_profile'] = user_profile
+        context['username'] = user_profile.username
+        return context
+
+    def post(self, request, *args, **kwargs):
+        user = self.request.user
+        profile = UserProfiles.objects.get(user=user)
+        user_icon = request.FILES.get('user_icon')
+        if not user_icon:
+            user_icon = profile.user_icon
+        username = request.POST.get('username')
+        nickname = request.POST.get('nickname')
+        introduction = request.POST.get('introduction')
+        json_data = dict()
+        error_messages = []
+        if username != profile.username:
+            if UserProfiles.objects.filter(username=username):
+                error_messages.append('not_username_unique')
+        if not self.match(username):
+            error_messages.append('only_number_english')
+        json_data['error_messages'] = error_messages
+        if error_messages:
+            json_data['success'] = False
+            json_data['username'] = profile.username
+            return JsonResponse(json_data)
+        else:
+            json_data['success'] = True
+            profile.user_icon = user_icon
+            profile.username = username
+            profile.nickname = nickname
+            profile.introduction = introduction
+            profile.save()
+            json_data['username'] = profile.username
+            return JsonResponse(json_data)
+
+    def match(self, text):
+        return all(re.findall('[a-z0-9\_.]', i) for i in text)
+
+
+class AccountsPasswordChangeView(TemplateView, LoginRequiredMixin):
+    template_name = 'sns/accounts_password_change.html'
+    login_url = reverse_lazy('sns:login')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = self.request.user.id
+        user_profile = UserProfiles.objects.get(user=user)
+        context['user_profile'] = user_profile
+        context['username'] = user_profile.username
+        return context

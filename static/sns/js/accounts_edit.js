@@ -22,11 +22,24 @@ window.addEventListener('DOMContentLoaded', function (){
 
     "use strict";
 
-    const input_icon = document.querySelector('#id_user_icon')
-    const workspace_container = document.querySelector('.workspace-container')
-    const show_crop_image = document.querySelector('.item-label img')
-    var cropper = ''
-    input_icon.onchange = () => {
+    const input_icon = document.getElementById('user-icon-input');
+    const input_icon_button = document.querySelector('.user-icon-edit-button');
+    const workspace_container = document.querySelector('.workspace-container');
+    const show_crop_image = document.querySelector('.user-icon')
+    var cropper = '';
+    var submit = document.getElementById('submit');
+    var csrf = document.getElementsByName('csrfmiddlewaretoken');
+    var fd = new FormData()
+    var username = document.getElementById('username');
+    var nickname = document.getElementById('nickname');
+    var introduction = document.getElementById('introduction');
+    var user_home_url = document.querySelector('.profile-text .a')
+
+    input_icon_button.addEventListener('click', function(){
+        input_icon.click();
+    });
+    input_icon.addEventListener('change', function(){
+        console.log(input_icon)
         if(cropper) {
             cropper.destroy();
         }
@@ -35,9 +48,6 @@ window.addEventListener('DOMContentLoaded', function (){
         var url = window.URL.createObjectURL(new Blob([file], {type: 'image/jpg'}))
         var picture_workspace = document.getElementById("workspace")
         picture_workspace.src = url
-
-        
-
         var options = {
             dragMode: 'move',
             aspectRatio: 1,
@@ -52,10 +62,8 @@ window.addEventListener('DOMContentLoaded', function (){
             },
         }
         cropper = new Cropper(picture_workspace, options)
-        
-        
-    }
-    
+
+    })
 
     var result_button = document.getElementById('result-button')
     var croppedCanvas;
@@ -68,28 +76,37 @@ window.addEventListener('DOMContentLoaded', function (){
         show_crop_image.src = roundedCanvas.toDataURL()
     })
 
-
-    var submit = document.getElementById('submit');
-    var csrf = document.getElementsByName('csrfmiddlewaretoken');
-    var fd = new FormData()
-    var items = document.querySelectorAll('.items')
+    input_icon.onchange = () => {
+        submit.style.backgroundColor = 'rgb(0, 149, 246)'
+        submit.disabled = false
+    }
+    username.onchange = () => {
+        submit.style.backgroundColor = 'rgb(0, 149, 246)'
+        submit.disabled = false
+    }
+    nickname.onchange = () => {
+        submit.style.backgroundColor = 'rgb(0, 149, 246)'
+        submit.disabled = false
+    }
+    introduction.onchange = () => {
+        submit.style.backgroundColor = 'rgb(0, 149, 246)'
+        submit.disable = false
+    }
 
     submit.addEventListener('click', function() {
-        var username = document.getElementById('username').value;
-        var nickname = document.getElementById('nickname').value;
-        var introduction = document.getElementById('introduction').value;
-        console.log(username)
-        console.log(nickname)
-        console.log(introduction)
+        var username_val = username.value;
+        var nickname_val = nickname.value;
+        var introduction_val = introduction.value;
         fd.append('csrfmiddlewaretoken', csrf[0].value)
-        roundedCanvas.toBlob((blob) => {
-            fd.append('user_icon', blob, 'user_icon.png')
-            console.log(blob)
-        })
-        fd.append('usericon', roundedCanvas.toDataURL())
-        fd.append('username', username)
-        fd.append('nickname', nickname)
-        fd.append('introduction', introduction)
+        if(cropper){
+            roundedCanvas.toBlob((blob) => {
+                fd.append('user_icon', blob, 'user_icon.png')
+            })
+            fd.append('usericon', roundedCanvas.toDataURL())
+        }
+        fd.append('username', username_val)
+        fd.append('nickname', nickname_val)
+        fd.append('introduction', introduction_val)
         setTimeout(function() {
             $.ajax({
                 type: 'POST',
@@ -97,21 +114,16 @@ window.addEventListener('DOMContentLoaded', function (){
                 data: fd,
                 success(responce) {
                     if(responce.success){
-                        window.location.href = '/';
+                        window.confirm('プロフィールが更新されました。');
+                        user_home_url.href = `/${responce.username}/`
                     }else{
-                        var message = document.createElement('div')
-                        message.className = 'message'
-                        items[0].before(message)
+                        username.value = responce.username
                         for(let error_message of responce.error_messages){
                             if(error_message == 'only_number_english'){
-                                var text = document.createElement('p');
-                                text.textContent = '・半角英数数字、.(ピリオド)、_(アンダースコア)のみでユーザネームを作成してください';
-                                message.appendChild(text);
+                                window.confirm('半角英数数字、.(ピリオド)、_(アンダースコア)のみでユーザネームを作成してください');
                             }
                             if(error_message == 'not_username_unique'){
-                                var text = document.createElement('p');
-                                text.textContent = '・すでにこのユーザネームを使用しているユーザがいます';
-                                message.appendChild(text);
+                                window.confirm('すでにこのユーザネームを使用しているユーザがいます');
                             }
                         }
                     }
@@ -121,5 +133,10 @@ window.addEventListener('DOMContentLoaded', function (){
                 processData: false,
             })
         }, 100)
+        submit.style.backgroundColor = 'rgb(0, 149, 246, .3)'
+        submit.disabled = true
     })
+
+
+
 })

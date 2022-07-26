@@ -1,0 +1,191 @@
+body {
+    margin: 0;
+}
+
+/* 大枠 */
+.accounts-edit-container {
+    margin-top: 120px;
+}
+.accounts-edit-wrap {
+    display: flex;
+    max-width: 935px;
+    margin: 0 auto;
+    background-color: rgb(255, 255, 255);
+    border: 1px solid rgb(219, 219, 219);
+}
+
+
+/* 左側 */
+.table-contents {
+    display: block;
+    list-style: none;
+    padding: 0 60px 0 0;
+}
+
+.table-item {
+    display: block;
+    padding: 16px 16px 16px calc(32px - 2px);
+    width: calc(100% - 48px);
+    border-left: 1px solid rgb(38, 38, 38);
+}
+
+.subject {
+    color: rgb(38, 38, 38);
+    border-left-color: rgb(38, 38, 38);
+    font-weight: 600;
+    font-size: 16px;
+    line-height: 24px;;
+}
+
+/* 右の一番上 */
+.top-items-conteiner {
+    margin-top: 32px;
+}
+.top-items-wrap {
+    display: flex;
+}
+.user-icon-wrap {
+    margin: 2px 32px 0 124px;
+}
+.name {
+    font-size: 20px;
+    font-weight: normal;
+    line-height: 22px;
+    margin-bottom: 2px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.user-icon-edit-button {
+    color: rgb(0, 149, 246);
+    border: 0;
+    background-color: rgb(255, 255, 255);
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 18px;
+}
+
+
+/* 右の下側 */
+.main-contents {
+    width: 600px;
+    border-left: 1px solid rgb(219, 219, 219);
+}
+.main-items {
+    display: flex;
+    margin-bottom: 16px;
+}
+.top-items-conteiner {
+    margin-bottom: 16px;
+}
+.label {
+    padding-left: 32px;
+    padding-right: 32px;
+    text-align: right;
+    box-sizing: border-box;
+    color: rgb(38, 38, 38);
+    flex: 0 0 194px;
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 18px;
+    margin-top: 6px;
+}
+.input-left {
+    max-width: 355px;
+    flex-basis: 355px;
+    flex-direction: row;
+    padding-right: 60px;
+}
+#username {
+    background-color: rgb(239, 239, 239);
+    border-color: rgb(219, 219, 219);
+    color: rgb(38, 38, 38);
+    background: transparent;
+    border: 1px solid rgb(219, 219, 219);
+    border-radius: 3px;
+    box-sizing: border-box;
+    flex: 0 1 355px;
+    font-size: 16px;
+    height: 32px;
+    padding: 0 10px;
+    width: 100%;
+}
+
+input{
+    border-color: rgb(219, 219, 219);
+    color: rgb(38, 38, 38);
+    background: transparent;
+    border: 1px solid rgb(219, 219, 219);
+    border-radius: 3px;
+    box-sizing: border-box;
+    flex: 0 1 355px;
+    font-size: 16px;
+    height: 32px;
+    padding: 0 10px;
+    width: 100%; 
+}
+textarea {
+    border-color: rgb(219, 219, 219);
+    color: rgb(38, 38, 38);
+    background: transparent;
+    border: 1px solid rgb(219, 219, 219);
+    border-radius: 3px;
+    box-sizing: border-box;
+    flex: 0 1 355px;
+    font-size: 16px;
+    height: 60px;
+    padding: 6px 10px;
+    width: 100%;  
+}
+.sub-text {
+    color: rgb(142, 142, 142);
+    font-weight: 400;
+    font-size: 12px;
+    line-height: 16px;
+    margin-top: 8px;
+    padding-bottom: 8px;
+}
+
+/* 送信ボタン */
+.submit > button {
+    background-color: rgb(0, 149, 246, .3);
+    border: 1px solid transparent;
+    border-radius: 4px;
+    color: rgb(255, 255, 255);
+}
+
+
+/* トリミング画面 */
+.workspace-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    background-color: rgb(0, 0, 0, 0.6);
+    z-index: 10000;
+}
+.workspace-wrap {
+    max-width: 500px;
+    margin: 50px auto;
+    display: flex;
+}
+.workspace {
+    max-width: 400px;
+    height: 400px;
+    margin: 50px auto;
+}
+.cropper-view-box,
+.cropper-face {
+    border-radius: 50%;
+    cursor: grab;
+    outline: initial;
+}
+.cropper-face:active {
+    cursor: grabbing;
+}
+.result {
+    margin-top: auto;
+    margin-bottom: 50px;
+}
