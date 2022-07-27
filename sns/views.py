@@ -794,43 +794,112 @@ class AccountsEditView(LoginRequiredMixin, TemplateView):
         user_profile = UserProfiles.objects.get(user=user)
         context['user_profile'] = user_profile
         context['username'] = user_profile.username
+        notification_items = []
+        notifications = Notifications.objects.filter(receiver_id=user)
+        for notification in notifications:
+            action_user = Users.objects.get(id=notification.action_user_id)
+            action_user_profile = UserProfiles.objects.get(user=action_user)
+            receiver_user = Users.objects.get(id=notification.receiver_id)
+            receiver_user_profile = UserProfiles.objects.get(user=receiver_user)
+            board = ''
+            date = (now() - notification.create_at)
+            date_days = date.days
+            date_second = date.seconds
+            date_minute = date_second // 60
+            date_hour = date_minute // 60
+            if date_second < 60:
+                day = str(date_second) + '秒前'
+            elif date_minute < 60:
+                day = str(date_minute) + '分前'
+            elif date_hour < 60:
+                day = str(date_hour) + '時間前'
+            else:
+                for i in range(1, 8):
+                    if date_days <= i * 7:
+                        if i == 1:
+                            day = str(date_days) + '日前'
+                        day = str(i) + '週間前'
+            if notification.action_id != 1:
+                board = Boards.objects.get(id=notification.board_id)
+            followed = ''
+            if notification.action_id == 1:
+                followed = FollowFollowerUser.objects.filter(follow_user=receiver_user, follower_user=action_user)
+                if followed:
+                    followed = True
+                else:
+                    followed = False
+            comment = ''
+            if notification.action_id == 3:
+                comment = notification.comment
+            items = {
+                'action_id': notification.action_id,
+                'action_user_profile': action_user_profile,
+                'receiver_user_profile': receiver_user_profile,
+                'board': board,
+                'day': day,
+                'followed': followed,
+                'comment': comment
+            }
+            notification_items.append(items)
+        context['notifications'] = notification_items
         return context
 
     def post(self, request, *args, **kwargs):
-        user = self.request.user
-        profile = UserProfiles.objects.get(user=user)
-        user_icon = request.FILES.get('user_icon')
-        if not user_icon:
-            user_icon = profile.user_icon
-        username = request.POST.get('username')
-        nickname = request.POST.get('nickname')
-        introduction = request.POST.get('introduction')
-        json_data = dict()
-        error_messages = []
-        if username != profile.username:
-            if UserProfiles.objects.filter(username=username):
-                error_messages.append('not_username_unique')
-        if not self.match(username):
-            error_messages.append('only_number_english')
-        json_data['error_messages'] = error_messages
-        if error_messages:
-            json_data['success'] = False
-            json_data['username'] = profile.username
-            return JsonResponse(json_data)
-        else:
-            json_data['success'] = True
-            profile.user_icon = user_icon
-            profile.username = username
-            profile.nickname = nickname
-            profile.introduction = introduction
-            profile.save()
-            json_data['username'] = profile.username
-            return JsonResponse(json_data)
+        if request.POST.get('action_type') == 'change_profile': 
+            user = self.request.user
+            profile = UserProfiles.objects.get(user=user)
+            user_icon = request.FILES.get('user_icon')
+            if not user_icon:
+                user_icon = profile.user_icon
+            username = request.POST.get('username')
+            nickname = request.POST.get('nickname')
+            introduction = request.POST.get('introduction')
+            json_data = dict()
+            error_messages = []
+            if username != profile.username:
+                if UserProfiles.objects.filter(username=username):
+                    error_messages.append('not_username_unique')
+            if not self.match(username):
+                error_messages.append('only_number_english')
+            json_data['error_messages'] = error_messages
+            if error_messages:
+                json_data['success'] = False
+                json_data['username'] = profile.username
+                return JsonResponse(json_data)
+            else:
+                json_data['success'] = True
+                profile.user_icon = user_icon
+                profile.username = username
+                profile.nickname = nickname
+                profile.introduction = introduction
+                profile.save()
+                json_data['username'] = profile.username
+                return JsonResponse(json_data)
+        if request.POST.get('action_type') == 'search_user':
+            search_text = request.POST.get('search_text')
+            results = UserProfiles.objects.filter(Q(username__icontains = search_text) | Q(nickname__icontains = search_text))
+            data = dict()
+            users_data = []
+            count = 0
+            for result in results:
+                if count == 50:
+                    break
+                user_data = dict()
+                user_data['user_icon']= result.user_icon.url
+                user_data['username'] = result.username
+                user_data['nickname'] = result.nickname
+                user_data['user_home_url'] = f'/{result.username}/'
+                users_data.append(user_data)
+                count += 1
+            data['users'] = users_data
+            print('success')
+            return JsonResponse(data)
 
     def match(self, text):
         return all(re.findall('[a-z0-9\_.]', i) for i in text)
 
 
+# パスワード変更画面
 class AccountsPasswordChangeView(TemplateView, LoginRequiredMixin):
     template_name = 'sns/accounts_password_change.html'
     login_url = reverse_lazy('sns:login')
@@ -842,11 +911,59 @@ class AccountsPasswordChangeView(TemplateView, LoginRequiredMixin):
         context['user_profile'] = user_profile
         context['username'] = user_profile.username
         context['accounts_password_change_form'] = PasswordChangeForm(user=self.request.user)
+        notification_items = []
+        notifications = Notifications.objects.filter(receiver_id=user)
+        for notification in notifications:
+            action_user = Users.objects.get(id=notification.action_user_id)
+            action_user_profile = UserProfiles.objects.get(user=action_user)
+            receiver_user = Users.objects.get(id=notification.receiver_id)
+            receiver_user_profile = UserProfiles.objects.get(user=receiver_user)
+            board = ''
+            date = (now() - notification.create_at)
+            date_days = date.days
+            date_second = date.seconds
+            date_minute = date_second // 60
+            date_hour = date_minute // 60
+            if date_second < 60:
+                day = str(date_second) + '秒前'
+            elif date_minute < 60:
+                day = str(date_minute) + '分前'
+            elif date_hour < 60:
+                day = str(date_hour) + '時間前'
+            else:
+                for i in range(1, 8):
+                    if date_days <= i * 7:
+                        if i == 1:
+                            day = str(date_days) + '日前'
+                        day = str(i) + '週間前'
+            if notification.action_id != 1:
+                board = Boards.objects.get(id=notification.board_id)
+            followed = ''
+            if notification.action_id == 1:
+                followed = FollowFollowerUser.objects.filter(follow_user=receiver_user, follower_user=action_user)
+                if followed:
+                    followed = True
+                else:
+                    followed = False
+            comment = ''
+            if notification.action_id == 3:
+                comment = notification.comment
+            items = {
+                'action_id': notification.action_id,
+                'action_user_profile': action_user_profile,
+                'receiver_user_profile': receiver_user_profile,
+                'board': board,
+                'day': day,
+                'followed': followed,
+                'comment': comment
+            }
+            notification_items.append(items)
+        context['notifications'] = notification_items
         return context
     
     def post(self, request, *args, **kwargs):
         context = super().get_context_data(**kwargs)
-        if request.method == 'POST':
+        if request.POST.get('action_type') == 'change_password':
             form = PasswordChangeForm(self.request.user, request.POST or None)
             old_password = request.POST.get('old_password')
             new_password1 = request.POST.get('new_password1')
@@ -865,8 +982,266 @@ class AccountsPasswordChangeView(TemplateView, LoginRequiredMixin):
                 return JsonResponse({'error_type': False})
             else:
                 return JsonResponse({'error_type': 'not_authenticate'})
-                
+        if request.POST.get('action_type') == 'search_user':
+            search_text = request.POST.get('search_text')
+            results = UserProfiles.objects.filter(Q(username__icontains = search_text) | Q(nickname__icontains = search_text))
+            data = dict()
+            users_data = []
+            count = 0
+            for result in results:
+                if count == 50:
+                    break
+                user_data = dict()
+                user_data['user_icon']= result.user_icon.url
+                user_data['username'] = result.username
+                user_data['nickname'] = result.nickname
+                user_data['user_home_url'] = f'/{result.username}/'
+                users_data.append(user_data)
+                count += 1
+            data['users'] = users_data
+            print('success')
+            return JsonResponse(data)
         return render(self.request, 'sns/accounts_password_change.html', context)
     
     def contain_any(self, password, condition_list):
         return any([i in password for i in condition_list])
+
+
+# フォロー一覧画面
+class FollowListView(LoginRequiredMixin, TemplateView):
+    template_name = 'sns/follow_list.html'
+    login_url = reverse_lazy('sns:login')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = self.request.user
+        host_user_profile = UserProfiles.objects.get(username=self.kwargs.get('host_user'))
+        host_user = host_user_profile.user
+        follows = FollowFollowerUser.objects.filter(follow_user=host_user)
+        user_profile = UserProfiles.objects.get(user=user)
+        follow_items = []
+        for follow in follows:
+            follow_item = dict()
+            follow_profile = UserProfiles.objects.get(user=follow.follower_user)
+            followed = 'not_followed'
+            if FollowFollowerUser.objects.filter(follow_user=user, follower_user=follow_profile.user):
+                followed = 'followed'
+            if user == follow_profile.user:
+                followed = 'me'
+            print(followed)
+            follow_item['user_icon'] = follow_profile.user_icon
+            follow_item['username'] = follow_profile.username
+            follow_item['nickname'] = follow_profile.nickname
+            follow_item['followed'] = followed
+            follow_item['user_home_url'] = f'/{follow_profile.username}/'
+            follow_items.append(follow_item)
+        context['follow_items'] = follow_items
+        context['username'] = user_profile.username
+        context['host_username'] = host_user_profile.username
+        notification_items = []
+        notifications = Notifications.objects.filter(receiver_id=user)
+        for notification in notifications:
+            action_user = Users.objects.get(id=notification.action_user_id)
+            action_user_profile = UserProfiles.objects.get(user=action_user)
+            receiver_user = Users.objects.get(id=notification.receiver_id)
+            receiver_user_profile = UserProfiles.objects.get(user=receiver_user)
+            board = ''
+            date = (now() - notification.create_at)
+            date_days = date.days
+            date_second = date.seconds
+            date_minute = date_second // 60
+            date_hour = date_minute // 60
+            if date_second < 60:
+                day = str(date_second) + '秒前'
+            elif date_minute < 60:
+                day = str(date_minute) + '分前'
+            elif date_hour < 60:
+                day = str(date_hour) + '時間前'
+            else:
+                for i in range(1, 8):
+                    if date_days <= i * 7:
+                        if i == 1:
+                            day = str(date_days) + '日前'
+                        day = str(i) + '週間前'
+            if notification.action_id != 1:
+                board = Boards.objects.get(id=notification.board_id)
+            followed = ''
+            if notification.action_id == 1:
+                followed = FollowFollowerUser.objects.filter(follow_user=receiver_user, follower_user=action_user)
+                if followed:
+                    followed = True
+                else:
+                    followed = False
+            comment = ''
+            if notification.action_id == 3:
+                comment = notification.comment
+            items = {
+                'action_id': notification.action_id,
+                'action_user_profile': action_user_profile,
+                'receiver_user_profile': receiver_user_profile,
+                'board': board,
+                'day': day,
+                'followed': followed,
+                'comment': comment
+            }
+            notification_items.append(items)
+        context['notifications'] = notification_items
+        return context
+    
+    def post(self, request, *args, **kwargs):
+        user = self.request.user
+        if request.POST.get('action_type') == 'search_user':
+            search_text = request.POST.get('search_text')
+            results = UserProfiles.objects.filter(Q(username__icontains = search_text) | Q(nickname__icontains = search_text))
+            data = dict()
+            users_data = []
+            count = 0
+            for result in results:
+                if count == 50:
+                    break
+                user_data = dict()
+                user_data['user_icon']= result.user_icon.url
+                user_data['username'] = result.username
+                user_data['nickname'] = result.nickname
+                user_data['user_home_url'] = f'/{result.username}/'
+                users_data.append(user_data)
+                count += 1
+            data['users'] = users_data
+            print('success')
+            return JsonResponse(data)
+        if request.POST.get('action_type') == 'follow':
+            username = request.POST.get('username')
+            follower_user = UserProfiles.objects.get(username=username).user
+            follow = FollowFollowerUser(
+                follow_user = user,
+                follower_user = follower_user
+            )
+            follow.save()
+            count_follower = FollowFollowerUser.objects.count_follower(follower_user=follower_user)
+            return JsonResponse({'count_follower': count_follower})
+        if request.POST.get('action_type') == 'clear_follow':
+            username = request.POST.get('username')
+            follower_user = UserProfiles.objects.get(username=username).user
+            clear_follow = FollowFollowerUser.objects.filter(follow_user=user, follower_user=follower_user)
+            clear_follow.delete()
+            count_follower = FollowFollowerUser.objects.count_follower(follower_user=follower_user)
+            return JsonResponse({'count_follower': count_follower})
+
+
+# フォロワー一覧画面
+class FollowerListView(LoginRequiredMixin, TemplateView):
+    template_name = 'sns/follower_list.html'
+    login_url = reverse_lazy('sns:login')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = self.request.user
+        host_user_profile = UserProfiles.objects.get(username=self.kwargs.get('host_user'))
+        host_user = host_user_profile.user
+        follows = FollowFollowerUser.objects.filter(follower_user=host_user)
+        user_profile = UserProfiles.objects.get(user=user)
+        follow_items = []
+        for follow in follows:
+            follow_item = dict()
+            follow_profile = UserProfiles.objects.get(user=follow.follow_user)
+            followed = 'not_followed'
+            if FollowFollowerUser.objects.filter(follow_user=user, follower_user=follow_profile.user):
+                followed = 'followed'
+            if user == follow_profile.user:
+                followed = 'me'
+            follow_item['user_icon'] = follow_profile.user_icon
+            follow_item['username'] = follow_profile.username
+            follow_item['nickname'] = follow_profile.nickname
+            follow_item['followed'] = followed
+            follow_item['user_home_url'] = f'/{follow_profile.username}/'
+            follow_items.append(follow_item)
+        context['follow_items'] = follow_items
+        context['username'] = user_profile.username
+        context['host_username'] = host_user_profile.username
+        notification_items = []
+        notifications = Notifications.objects.filter(receiver_id=user)
+        for notification in notifications:
+            action_user = Users.objects.get(id=notification.action_user_id)
+            action_user_profile = UserProfiles.objects.get(user=action_user)
+            receiver_user = Users.objects.get(id=notification.receiver_id)
+            receiver_user_profile = UserProfiles.objects.get(user=receiver_user)
+            board = ''
+            date = (now() - notification.create_at)
+            date_days = date.days
+            date_second = date.seconds
+            date_minute = date_second // 60
+            date_hour = date_minute // 60
+            if date_second < 60:
+                day = str(date_second) + '秒前'
+            elif date_minute < 60:
+                day = str(date_minute) + '分前'
+            elif date_hour < 60:
+                day = str(date_hour) + '時間前'
+            else:
+                for i in range(1, 8):
+                    if date_days <= i * 7:
+                        if i == 1:
+                            day = str(date_days) + '日前'
+                        day = str(i) + '週間前'
+            if notification.action_id != 1:
+                board = Boards.objects.get(id=notification.board_id)
+            followed = ''
+            if notification.action_id == 1:
+                followed = FollowFollowerUser.objects.filter(follow_user=receiver_user, follower_user=action_user)
+                if followed:
+                    followed = True
+                else:
+                    followed = False
+            comment = ''
+            if notification.action_id == 3:
+                comment = notification.comment
+            items = {
+                'action_id': notification.action_id,
+                'action_user_profile': action_user_profile,
+                'receiver_user_profile': receiver_user_profile,
+                'board': board,
+                'day': day,
+                'followed': followed,
+                'comment': comment
+            }
+            notification_items.append(items)
+        context['notifications'] = notification_items
+        return context
+    
+    def post(self, request, *args, **kwargs):
+        user = self.request.user
+        if request.POST.get('action_type') == 'search_user':
+            search_text = request.POST.get('search_text')
+            results = UserProfiles.objects.filter(Q(username__icontains = search_text) | Q(nickname__icontains = search_text))
+            data = dict()
+            users_data = []
+            count = 0
+            for result in results:
+                if count == 50:
+                    break
+                user_data = dict()
+                user_data['user_icon']= result.user_icon.url
+                user_data['username'] = result.username
+                user_data['nickname'] = result.nickname
+                user_data['user_home_url'] = f'/{result.username}/'
+                users_data.append(user_data)
+                count += 1
+            data['users'] = users_data
+            print('success')
+            return JsonResponse(data)
+        if request.POST.get('action_type') == 'follow':
+            username = request.POST.get('username')
+            follower_user = UserProfiles.objects.get(username=username).user
+            follow = FollowFollowerUser(
+                follow_user = user,
+                follower_user = follower_user
+            )
+            follow.save()
+            return JsonResponse({'a': 'a'})
+        if request.POST.get('action_type') == 'clear_follow':
+            username = request.POST.get('username')
+            follower_user = UserProfiles.objects.get(username=username).user
+            clear_follow = FollowFollowerUser.objects.filter(follow_user=user, follower_user=follower_user)
+            clear_follow.delete()
+            return JsonResponse({'a': 'a'})
+        

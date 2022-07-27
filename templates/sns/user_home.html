@@ -30,8 +30,8 @@
                 </div>
                 <div class="middle">
                     <div class="board-count">投稿<span class="strong">{{ number_of_board }}</span>件</div>
-                    <div class="follower-count">フォロワー<span class="strong">{{ count_follower}}</span>人</div>
-                    <div class="follow-count">フォロー<span class="strong">{{ count_follow }}</span>人</div>
+                    <a href="{% url 'sns:follower_list' host_user.username %}"><div class="follower-count">フォロワー<span class="strong">{{ count_follower}}</span>人</div></a>
+                    <a href="{% url 'sns:follow_list' host_user.username %}"><div class="follow-count">フォロー<span class="strong">{{ count_follow }}</span>人</div></a>
                 </div>
                 <div class="bottom">
                     <div class="nickname">{{ host_user.nickname }}</div>

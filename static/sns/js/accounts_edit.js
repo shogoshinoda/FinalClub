@@ -97,6 +97,7 @@ window.addEventListener('DOMContentLoaded', function (){
         var username_val = username.value;
         var nickname_val = nickname.value;
         var introduction_val = introduction.value;
+        fd.append('action_type', 'change_profile')
         fd.append('csrfmiddlewaretoken', csrf[0].value)
         if(cropper){
             roundedCanvas.toBlob((blob) => {

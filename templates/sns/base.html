@@ -25,6 +25,7 @@
             <div class="search">
                 <div class="search-box">
                     <form action="">
+                        {% csrf_token %}
                         <label for="search_input"></label><input id="search_input" type="text" placeholder="   検索">
                     </form>
                     <div id="search_box" class="box none"></div>

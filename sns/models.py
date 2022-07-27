@@ -407,12 +407,13 @@ def create_follow_notification(sender, instance, **kwargs):
     user = instance
     follower_user = user.follower_user
     follow_user = user.follow_user
-    follow_notification = Notifications(
-        receiver=follower_user,
-        action_user=follow_user,
-        action_id=1
-    )
-    follow_notification.save()
+    if not Notifications.objects.filter(receiver=follower_user, action_user=follow_user, action_id=1):
+        follow_notification = Notifications(
+            receiver=follower_user,
+            action_user=follow_user,
+            action_id=1
+        )
+        follow_notification.save()
 
 
 @receiver(post_save, sender=BoardsLikes)
@@ -422,13 +423,16 @@ def create_like_notification(sender, instance, **kwargs):
     action_user = ins.user
     action_id = 2
     board = ins.board
-    like_notification = Notifications(
-        receiver=user,
-        action_user=action_user,
-        action_id=action_id,
-        board=board
-    )
-    like_notification.save()
+    if user == action_user:
+        return
+    if not Notifications.objects.filter(receiver=user, action_user=action_user, action_id=action_id):
+        like_notification = Notifications(
+            receiver=user,
+            action_user=action_user,
+            action_id=action_id,
+            board=board
+        )
+        like_notification.save()
 
 
 @receiver(post_save, sender=BoardsComments)
@@ -439,12 +443,15 @@ def create_comment_notification(sender, instance, **kwargs):
     action_id = 3
     board = ins.board
     comment = ins.comment
-    comment_notification = Notifications(
-        receiver=user,
-        action_user=action_user,
-        action_id=action_id,
-        board=board,
-        comment=comment
-    )
-    comment_notification.save()
+    if user == action_user:
+        return
+    if not Notifications.objects.filter(receiver=user, action_user=action_user, action_id=action_id, board=board, comment=comment):
+        comment_notification = Notifications(
+            receiver=user,
+            action_user=action_user,
+            action_id=action_id,
+            board=board,
+            comment=comment
+        )
+        comment_notification.save()
 

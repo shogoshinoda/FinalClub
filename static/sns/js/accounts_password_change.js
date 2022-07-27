@@ -46,6 +46,7 @@ window.addEventListener('DOMContentLoaded', function(){
         var old_password_val = old_password.value;
         var new_password1_val = new_password1.value;
         var new_password2_val = new_password2.value;
+        fd.append('action_type', 'change_password')
         fd.append('csrfmiddlewaretoken', csrf[0].value)
         fd.append('old_password', old_password_val)
         fd.append('new_password1', new_password1_val)

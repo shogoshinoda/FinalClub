@@ -1,0 +1,61 @@
+{% extends "sns/base.html" %}
+{% block title %}{{ block.super }}{{ username}}{% endblock %}
+{% block file%}
+{% load static %}
+<link rel="stylesheet" href="{% static 'sns/css/follow_list.css' %}">
+{% endblock %}
+{% block content %}
+<div class="follow-container">
+    <div class="follow-wrap">
+        <div class="follow-items">
+        <div class="title">
+            <div class="title-text">
+                {{ host_username }}  Follower
+            </div>
+            <div class="back-page">
+                <a href="{% url 'sns:user_home' host_username %}">戻る</a>
+            </div>
+        </div>
+        <div class="list-container">
+            <ul>
+            {% for follow_item in follow_items %}
+                <li>
+                    <div class="list-wrap">
+                        <div class="user-prof">
+                            <div class="user-icon-container">
+                                <div class="user-icon">
+                                    <a href="{{ follow_item.user_home_url }}"><img src="{{ follow_item.user_icon.url }}"></a>
+                                </div>
+                            </div>
+                            <div class="name-container">
+                                <div class="name-wrap">
+                                    <div class="username-wrap">
+                                        <a href="{{ follow_item.user_home_url }}">{{ follow_item.username }}</a>
+                                    </div>
+                                    <div class="nickname-wrap">
+                                        {{ follow_item.nickname }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="follow-action-container">
+                            <div class="follow-action-wrap">
+                            {% if follow_item.followed == 'followed' %}
+                                <button class="clear-follow" type="button" data-username="{{ follow_item.username }}">フォロー中</button>
+                            {% elif follow_item.followed == 'not_followed' %}
+                                <button class="follow" type="button" data-username="{{ follow_item.username }}">フォローする</button>
+                            {% elif follow_item.followed == 'me' %}
+                             
+                            {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </li>
+            {% endfor%}
+            <ul>
+        </div>
+        </div>
+    </div>
+</div>
+<script src="{% static 'sns/js/follow_list.js' %}"></script>
+{% endblock %}

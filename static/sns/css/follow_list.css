@@ -1,0 +1,114 @@
+body {
+    margin: 0;
+}
+ul {
+    list-style: none;
+}
+
+/* 大枠 */
+.follow-container {
+    width: 100%;
+    height: 100vh;
+    margin-top: 62px;
+    background-color: rgb(250, 250, 250);
+}
+.follow-wrap {
+    max-width: 860px;
+    min-width: 860px;
+    height: 90%;
+    margin: 0 auto;
+    padding: 5vh 0;
+}
+.follow-items {
+    border: 1px solid rgb(219, 219, 219);
+}
+
+/* タイトル部分 */
+.title {
+    display: flex;
+    text-align: center;
+    color: rgb(38, 38, 38);
+    font-size: 18px;
+    line-height: 24px;
+    font-weight: 500;
+    padding: 20px 0;
+    border-bottom: 1px solid rgb(219, 219, 219);
+}
+.title-text {
+    text-align: center;
+    width: 85%;
+    padding-left: 60px;
+}
+.back-page {
+    text-align: center;
+    width: 15%;
+}
+.back-page > a{
+    text-align: center;
+    color: rgb(38, 38, 38);
+    font-size: 18px;
+    line-height: 24px;
+    font-weight: 600;
+}
+
+
+
+/* リスト外要素 */
+.list-container {
+    height: 500px;
+    overflow: scroll;
+}
+
+
+/* リスト内要素 */
+.list-wrap {
+    display: flex;
+    justify-content: space-between;
+}
+.user-prof {
+    display: flex;
+}
+li {
+    margin: 5px 0;
+}
+
+/* ユーザアイコン */
+.user-icon-container {
+    width: 60px;
+    height: 60px;
+}
+img {
+    width: 100%;
+    height: 100%;
+}
+
+/* ユーザネーム */
+.username-wrap > a {
+    color: rgb(38, 38, 38);
+    font-weight: 600;
+    font-size: 14px;
+    line-height: 18px;
+}
+
+/* ニックネーム */
+.nickname-wrap {
+    color: rgb(142, 142, 142);
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 18px;
+}
+
+
+/* フォローアクション */
+button {
+    background-color: transparent;
+    border: 1px solid rgb(219, 219, 219);
+    color: rgb(38, 38, 38);
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 5px 9px;
+    text-align: center;
+    margin: 5px 15px 0 0;
+}
+
