@@ -452,6 +452,32 @@ class HomeView(LoginRequiredMixin, TemplateView):
             clear_follow.delete()
             count_follower = FollowFollowerUser.objects.count_follower(follower_user=follower_user)
             return JsonResponse({'count_follower': count_follower})
+        if request.POST.get('action_type') == 'setting_delete_board':
+            username = request.POST.get('username')
+            user_profile = UserProfiles.objects.filter(username=username)
+            board_id = request.POST.get('board_id')
+            board = Boards.objects.filter(id=board_id)
+            board.delete()
+            return JsonResponse({'success': True})
+        if request.POST.get('action_type') == 'setting_board_edit_action':
+            print('====================')
+            board_id = request.POST.get('board_id')
+            board = Boards.objects.get(id=board_id)
+            json_data = dict()
+            len_picture = 0
+            print('=============================')
+            for i in range(1, 11):
+                picture = 'board.picture' + str(i)
+                picture_url = 'board.picture' + str(i) + '.url'
+                if eval(picture):
+                    json_data['picture' + str(i) + '_url'] = eval(picture_url)
+                    len_picture += 1
+            json_data['len_picture'] = len_picture
+            json_data['username'] = board.user_profile.username
+            json_data['user_icon_url'] = board.user_profile.user_icon.url
+            json_data['description'] = board.description
+            print(json_data['picture1_url'])
+            return JsonResponse(json_data)
         return redirect('sns:home')
 
 

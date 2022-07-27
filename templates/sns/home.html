@@ -135,7 +135,7 @@
                         </div>
                         <div class="board-comment-list-wrap">
                             <div class="comment-head">
-                                <a href="{% url 'sns:board' board.item.id %}">コメント<span>{{ board.comment_count }}</span>件をすべて見る<a>
+                                <a href="{% url 'sns:board' board.item.id %}">コメント<span>{{ board.comment_count }}</span>件をすべて見る</a>
                             </div>
                             {% for comment in board.comments %}
                             <div class="comment-list">
@@ -168,6 +168,44 @@
                 <div class="setting-follow"></div>
                 <div class="setting-move-board">投稿へ移動</div>
                 <div class="setting-cancel">キャンセル</div>
+            </div>
+        </div>
+        <div class="edit-board-container none">
+            <div class="edit-board-wrap">
+                <div class="edit-board-header-container">
+                    <div class="edit-board-header-cancel">キャンセル</div>
+                    <div class="edit-board-header-title">情報を編集</div>
+                    <div class="edit-board-header-submit">完了</div>
+                </div>
+                <div class="edit-board-items">
+                    <div class="edit-picture-container">
+                        <div class="edit-picture-wrap">
+                        </div>
+                        <div class="edit-navigator">
+                        </div>
+                        <div class="edit-position-wrap">
+                        </div>
+                    </div>
+                    <div class="edit-right-container">
+                        <div class="edit-board-header-wrap">
+                            <div class="edit-board-user-wrap">
+                                <div class="edit-board-icon">
+                                    <img src="">
+                                </div>
+                                <div class="edit-board-username">
+                                    
+                                </div>
+                            </div>
+                        </div>
+                        <div class="edit-board-middle-container">
+                            <div class="edit-board-middle-wrap">
+                                <div class="edit-board-textarea">
+                                    <textarea id="description" placeholder="コメント入力..."></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

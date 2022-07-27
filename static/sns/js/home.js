@@ -453,6 +453,25 @@ window.addEventListener('DOMContentLoaded', function (){
     var setting_action_type = ''
     var setting_board_id = ''
     var board_user = ''
+    var board
+    var board_id;
+
+    // 掲示板編集画面
+    var edit_board_container = document.querySelector('.edit-board-container')
+    var edit_picture_wrap = document.querySelector('.edit-picture-wrap')
+    var edit_navigator = document.querySelector('.edit-navigator')
+    var edit_position_wrap = document.querySelector('.edit-position-wrap')
+    var edit_board_icon = document.querySelector('.edit-board-icon img')
+    var edit_board_username = document.querySelector('.edit-board-username')
+    var edit_board_textarea = document.querySelector('.edit-board-textarea textarea')
+    var edit_board_header_cancel = document.querySelector('.edit-board-header-cancel')
+    var edit_baord_header_submit = document.querySelector('.edit-board-header-submit')
+
+    // スクロール禁止関数
+    function disableScroll(event) {
+        event.preventDefault();
+    }
+
     document.addEventListener('click', function(e){
         if(e.target.classList.value == 'board-setting-img'){
             setting_container.classList.remove('none')
@@ -464,26 +483,43 @@ window.addEventListener('DOMContentLoaded', function (){
             }else{
                 setting_action_type = 'edit_board'
             }
-            var board_id = e.target.dataset.boardid
+            board_id = e.target.dataset.boardid
             setting_board_id = board_id
             board_user = e.target.dataset.username
             setting_follow.innerText = ''
             if(followed == 'followed' ){
+                var delete_board = document.querySelector('.delete-board')
+                if(delete_board){
+                    delete_board.remove()
+                }
                 setting_follow.classList.remove('setting-board-edit-action')
                 setting_follow.classList.remove('setting-follow-action')
                 setting_follow.innerText = 'フォローをやめる'
                 setting_follow.classList.add('setting-follow-clear-action')
             }else if(followed == 'follow'){
+                var delete_board = document.querySelector('.delete-board')
+                if(delete_board){
+                    delete_board.remove()
+                }
                 setting_follow.classList.remove('setting-follow-clear-action')
                 setting_follow.classList.remove('setting-board-edit-action')
                 setting_follow.innerText = 'フォローする'
                 setting_follow.classList.add('setting-follow-action')
             }else{
+                var delete_board = document.querySelector('.delete-board')
+                if(delete_board){
+                    delete_board.remove()
+                }
                 setting_follow.classList.remove('setting-follow-clear-action')
                 setting_follow.classList.remove('setting-follow-action')
                 setting_follow.innerText = '投稿を編集する'
                 setting_follow.classList.add('setting-board-edit-action')
+                var delete_board = document.createElement('div')
+                delete_board.className = 'delete-board'
+                delete_board.innerText = '削除する'
+                setting_follow.after(delete_board)
             }
+            board = e.target.parentNode.parentNode.parentNode.parentNode.parentNode.parentNode
         }
         if(e.target.classList.value == 'setting-move-board'){
             window.location.href = '/p/' + setting_board_id;
@@ -532,9 +568,106 @@ window.addEventListener('DOMContentLoaded', function (){
                 processData: false
             })
         }
+        if(e.target.classList.value == 'delete-board'){
+            var fd = new FormData()
+            fd.append('csrfmiddlewaretoken', csrf[0].value)
+            fd.append('username', board_user)
+            fd.append('board_id', setting_board_id)
+            fd.append('action_type', 'setting_delete_board')
+            var comfirm_result = window.confirm('削除してもよろしですか？')
+            if(comfirm_result){
+                $.ajax({
+                    type: 'POST',
+                    url: '',
+                    data: fd,
+                    success(responce){
+                        if(responce.success){
+                            window.confirm('削除しました')
+                        }
+                        setting_container.classList.add('none')
+                        console.log(board)
+                        board.remove()
+                    },
+                    cache: false,
+                    contentType: false,
+                    processData: false
+                })
+            }
+        }
+        if(e.target.classList.value == 'setting-follow setting-board-edit-action'){
+            var fd = new FormData()
+            fd.append('csrfmiddlewaretoken', csrf[0].value)
+            fd.append('board_id', setting_board_id)
+            fd.append('action_type', 'setting_board_edit_action')
+            $.ajax({
+                type: 'POST',
+                url: '',
+                data: fd,
+                success(responce){
+                    setting_container.classList.add('none')
+                    document.addEventListener('touchmove', disableScroll, { passive: false });
+                    document.addEventListener('mousewheel', disableScroll, { passive: false });
+                    edit_board_container.classList.remove('none')
+                    for(let i =1; i <= responce.len_picture; i++){
+                        var picture_url = 'responce.picture' + i + '_url'
+                        var picture = document.createElement('img')
+                        picture.src = eval(picture_url)
+                        if(i==1){
+                            picture.className = 'edit-target'
+                        }
+                        edit_picture_wrap.insertBefore(picture, null)
+                        if(i == 2){
+                            var edit_board_before = document.createElement('div')
+                            edit_board_before.className = 'edit-board-before'
+                            var edit_navigator_before = document.createElement('button')
+                            edit_navigator_before.className = 'edit-navigator-before'
+                            edit_board_before.insertBefore(edit_navigator_before, null)
+                            edit_navigator.insertBefore(edit_board_before, null)
+                            var edit_board_next = document.createElement('div')
+                            edit_board_next.className = 'edit-board-next'
+                            var edit_navigator_next = document.createElement('button')
+                            edit_navigator_next.className = 'edit-navigator-next'
+                            edit_board_next.insertBefore(edit_navigator_next, null)
+                            edit_navigator.insertBefore(edit_board_next, null)
+
+                            var edit_position_blue = document.createElement('div')
+                            edit_position_blue.className = 'edit-position edit-blue'
+                            var edit_position = document.createElement('div')
+                            edit_position.className = 'edit-position'
+                            edit_position_wrap.insertBefore(edit_position_blue, null)
+                            edit_position_wrap.insertBefore(edit_position, null)
+                        }else if(i > 2){
+                            var edit_position = document.createElement('div')
+                            edit_position.className = 'edit-position'
+                            edit_position_wrap.insertBefore(edit_position, null)
+                        }
+                    }
+                    edit_board_icon.src = responce.user_icon_url
+                    edit_board_username.innerText = responce.username
+                    edit_board_textarea.value = responce.description
+                },
+                cache: false,
+                contentType: false,
+                processData: false
+            })
+        }
     })
     setting_cancel.addEventListener('click', function(){
         setting_container.classList.add('none')
+    })
+    edit_board_header_cancel.addEventListener('click', function(){
+        edit_board_container.classList.add('none')
+        while(edit_picture_wrap.firstChild){
+            edit_picture_wrap.removeChild(edit_picture_wrap.firstChild);
+        }
+        while(edit_navigator.firstChild){
+            edit_navigator.removeChild(edit_navigator.firstChild);
+        }
+        while(edit_position_wrap.firstChild){
+            edit_position_wrap.removeChild(edit_position_wrap.firstChild)
+        }
+        document.removeEventListener('touchmove', disableScroll, { passive: false });
+        document.removeEventListener('mousewheel', disableScroll, { passive: false });
     })
 
 })

@@ -323,6 +323,13 @@
     border-bottom: 1px solid rgb(214, 214, 214);
     cursor: pointer;
 }
+.delete-board {
+    height: 50px;
+    line-height: 50px;
+    border-bottom: 1px solid rgb(214, 214, 214);
+    cursor: pointer;
+    color: red;
+}
 .setting-move-board {
     height: 50px;
     line-height: 50px;
@@ -341,6 +348,200 @@
 
 
 
+/* 掲示板編集画面 */
+/* 大枠 */
+.edit-board-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    background-color: rgb(0, 0, 0, 0.6);
+    z-index: 10000;
+}
+.edit-board-wrap {
+    max-width: 930px;
+    min-width: 930px;
+    height: 90%;
+    margin: 0 auto;
+    padding: 5vh 0;
+}
+/* ヘッダー */
+.edit-board-header-container {
+    display: flex;
+    justify-content: space-between;
+    height: 40px;
+    border-top-left-radius: 14px;
+    border-top-right-radius: 14px;
+    background-color: rgb(255, 255, 255);
+}
+.edit-board-header-cancel {
+    width: 10%;
+    text-align: center;
+    line-height: 40px;
+    color: rgb(38, 38, 38);
+    font-weight: 400;
+    font-size: 14px;
+    padding-left: 15px;
+    cursor: pointer;
+}
+.edit-board-header-title {
+    width: 80%;
+    text-align: center;
+    line-height: 40px;
+    color: rgb(38, 38, 38);
+    font-weight: 600;
+    font-size: 16px;
+}
+.edit-board-header-submit {
+    width: 10%;
+    text-align: center;
+    line-height: 40px;
+    color: rgb(0, 149, 246);
+    font-family: "Segoe UI", Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    padding-right: 15px;
+}
+.edit-board-items {
+    display: flex;
+}
+/* 左側の写真 */
+.edit-picture-container {
+    overflow: hidden;
+    width: 600px;
+    height: 600px;
+    object-fit: cover;
+}
+.edit-picture-wrap {
+    display: flex;
+    height: 100%;
+    position: relative;
+    transition-duration: .5s;
+    left: 0%;
+}
+.edit-picture-wrap > img {
+    width: 100%;
+    height: 100%;
+    resize: both;
+    top: 0;
+    left: 0;
+}
+.edit-navigator {
+    position: relative;
+    top: -50%;
+    left: 11px;
+    display: flex;
+    justify-content: space-between;
+    width: 581px;
+}
+.edit-board-before {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background-image: url(/static/sns/img/home/before.svg);
+    background-repeat: no-repeat;
+    background-size: contain;
+    opacity: 0;
+    background-color: white;
+}
+.edit-navigator-next {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    z-index: -100;
+    opacity: 0;
+    transform: translateY(-3px);
+}
+.edit-navigator-before {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    z-index: -100;
+    opacity: 1;
+    transform: translateY(-3px);
+}
+
+.edit-board-next {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background-image: url(/static/sns/img/home/next.svg);
+    background-repeat: no-repeat;
+    background-size: contain;
+    opacity: 0.6;
+    background-color: white;
+}
+.edit-position-wrap {
+    position: relative;
+    top: -9%;
+    height: 16px;
+    display: flex;
+    justify-content: center;
+    width: 600px;
+}
+.edit-position {
+    width: 10px;
+    margin: 3px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: #eeeeee;
+}
+.edit-blue {
+    background-color: #007bff;;
+}
+.edit-board-before {
+    border-radius: 50%;
+}
+/* 右側の要素 */
+.edit-right-container {
+    background-color: rgb(255,255,255);
+    width: 330px;
+}
+.edit-board-header-contents {
+    display: flex;
+    justify-content: space-between;
+    padding: 14px 4px 14px 16px;
+}
+.edit-board-user-wrap {
+    display: flex;
+    padding: 17px 0 0 10px;
+}
+.edit-board-header-wrap {
+    display: flex;
+    height: 60px;
+    border: 1px solid rgb(239, 239, 239);
+}
+.edit-board-icon > img {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+}
+.edit-board-username {
+    padding-left: 20px;
+}
+.edit-board-username {
+    color: rgb(38, 38, 38);
+    font-weight: 600;
+    font-size: 14px;
+    line-height: 18px;
+    text-decoration: none;
+}
+.edit-board-middle-wrap {
+    height: 350px;
+}
+.edit-board-textarea > textarea {
+    width: 300px;
+    height: 500px;
+    margin: 10px;
+    border: none;
+    background-color: rgb(255,255,255);
+}
+textarea {
+    border: none;
+    resize: none;
+    outline: none;
+}
 
 
 
