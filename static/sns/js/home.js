@@ -5,6 +5,10 @@ window.addEventListener('DOMContentLoaded', function (){
 
     "use strict";
 
+
+    var notification_message = document.getElementById('message');
+    var message_text = document.getElementById('message-text')
+
     // 提示版写真の移動
     document.addEventListener('click', function (e){
         if (e.target.classList.value === 'next') {
@@ -455,6 +459,7 @@ window.addEventListener('DOMContentLoaded', function (){
     var board_user = ''
     var board
     var board_id;
+    var board_description;
 
     // 掲示板編集画面
     var edit_board_container = document.querySelector('.edit-board-container')
@@ -465,7 +470,8 @@ window.addEventListener('DOMContentLoaded', function (){
     var edit_board_username = document.querySelector('.edit-board-username')
     var edit_board_textarea = document.querySelector('.edit-board-textarea textarea')
     var edit_board_header_cancel = document.querySelector('.edit-board-header-cancel')
-    var edit_baord_header_submit = document.querySelector('.edit-board-header-submit')
+    var edit_board_header_submit = document.querySelector('.edit-board-header-submit')
+
 
     // スクロール禁止関数
     function disableScroll(event) {
@@ -520,6 +526,7 @@ window.addEventListener('DOMContentLoaded', function (){
                 setting_follow.after(delete_board)
             }
             board = e.target.parentNode.parentNode.parentNode.parentNode.parentNode.parentNode
+            board_description = e.target.parentNode.parentNode.parentNode.parentNode.nextElementSibling.nextElementSibling.children[2].children[0].children[1]
         }
         if(e.target.classList.value == 'setting-move-board'){
             window.location.href = '/p/' + setting_board_id;
@@ -626,7 +633,7 @@ window.addEventListener('DOMContentLoaded', function (){
                             var edit_board_next = document.createElement('div')
                             edit_board_next.className = 'edit-board-next'
                             var edit_navigator_next = document.createElement('button')
-                            edit_navigator_next.className = 'edit-navigator-next'
+                            edit_navigator_next.className = 'edit-navigator-next edit-next'
                             edit_board_next.insertBefore(edit_navigator_next, null)
                             edit_navigator.insertBefore(edit_board_next, null)
 
@@ -668,6 +675,110 @@ window.addEventListener('DOMContentLoaded', function (){
         }
         document.removeEventListener('touchmove', disableScroll, { passive: false });
         document.removeEventListener('mousewheel', disableScroll, { passive: false });
+    })
+
+    // 投稿編集画面　ナビゲーター移動
+    document.addEventListener('click', function (e){
+        if (e.target.classList.value === 'edit-navigator-next edit-next') {
+            let board = e.target.parentNode.parentNode.previousElementSibling;
+            let boardPictureCount = board.childElementCount;
+            let position = 0;
+            for(let i=0; i<boardPictureCount; i++) {
+	            if (board.children[i].classList.value === "edit-target"){
+                    break;
+                }
+                position += 1;
+            }
+            let styleLeft = board.style.left;
+            let left = Number(styleLeft.replace(/%/g, ""));
+            board.style.left = (left-100) + "%";
+            board.children[position].classList.remove("edit-target");
+            board.children[position + 1].classList.add("edit-target");
+            e.target.parentNode.parentNode.nextElementSibling.children[position].classList.remove("edit-blue");
+            e.target.parentNode.parentNode.nextElementSibling.children[position + 1].classList.add("edit-blue");
+            e.target.parentNode.previousElementSibling.children[0].classList.add("edit-before");
+            e.target.parentNode.previousElementSibling.style.opacity = 0.6;
+            e.target.parentNode.previousElementSibling.children[0].style.opacity = 0;
+            if (position+2 === boardPictureCount) {
+                e.target.classList.remove("edit-next");
+                e.target.parentNode.style.opacity = 0;
+            }
+        }
+        if (e.target.classList.value === 'edit-navigator-before edit-before') {
+            let board = e.target.parentNode.parentNode.previousElementSibling;
+            let boardPictureCount = board.childElementCount;
+            let position = 0;
+            for(let i=0; i<boardPictureCount; i++) {
+	            if (board.children[i].classList.value === "edit-target"){
+                    break;
+                }
+                position += 1;
+            }
+            let styleLeft = board.style.left;
+            let left = Number(styleLeft.replace(/%/g, ""));
+            board.style.left = (left+100) + "%";
+            board.children[position].classList.remove("edit-target");
+            board.children[position - 1].classList.add("edit-target");
+            e.target.parentNode.parentNode.nextElementSibling.children[position].classList.remove("edit-blue");
+            e.target.parentNode.parentNode.nextElementSibling.children[position - 1].classList.add("edit-blue");
+            e.target.parentNode.nextElementSibling.children[0].classList.add("edit-next");
+            e.target.parentNode.nextElementSibling.style.opacity = 0.6;
+            e.target.parentNode.nextElementSibling.children[0].style.opacity = 0;
+            if (position-1 === 0){
+                e.target.classList.remove("edit-before");
+                e.target.parentNode.style.opacity = 0;
+            }
+        }
+    })
+
+    edit_board_header_submit.addEventListener('click', function(){
+        var fd = new FormData()
+        fd.append('csrfmiddlewaretoken', csrf[0].value)
+        fd.append('board_id', setting_board_id)
+        fd.append('description', edit_board_textarea.value)
+        fd.append('action_type', 'setting_board_edit_submit')
+        $.ajax({
+            type: 'POST',
+            url: '',
+            data: fd,
+            success(responce){
+                console.log('fjalkjkfjka')
+                console.log(responce)
+                edit_board_container.classList.add('none')
+                while(edit_picture_wrap.firstChild){
+                    edit_picture_wrap.removeChild(edit_picture_wrap.firstChild);
+                }
+                while(edit_navigator.firstChild){
+                    edit_navigator.removeChild(edit_navigator.firstChild);
+                }
+                while(edit_position_wrap.firstChild){
+                    edit_position_wrap.removeChild(edit_position_wrap.firstChild)
+                }
+                document.removeEventListener('touchmove', disableScroll, { passive: false });
+                document.removeEventListener('mousewheel', disableScroll, { passive: false });
+                board_description.innerText = responce.description
+                notification_message.classList.remove('none')
+                message_text.innerText = "掲示板を更新しました。"
+                for(var i=0; i >= -40; i-=5){
+                    setTimeout(function(){
+                        notification_message.style.transform = 'translateY('+i+'px)'
+                    }, 100)
+                }
+                setTimeout(function(){
+                    for(var i=-40; i <= 0; i+=5){
+                        setTimeout(function(){
+                            notification_message.style.transform = 'translateY('+i+'px)'
+                        }, 100)
+                    }
+                }, 3000)
+                setTimeout(function(){
+                    notification_message.classList.add('none')
+                }, 5000)
+            },
+            cache: false,
+            contentType: false,
+            processData: false
+        })
     })
 
 })

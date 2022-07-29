@@ -41,12 +41,14 @@
                 {% endif %}
             </div>
             <div class="navigator">
+                {% if board.picture2 %}
                 <div class="board-before">
                     <button class="navigator-before"></button>
                 </div>
                 <div class="board-next">
                     <button class="navigator-next next"></button>
                 </div>
+                {% endif %}
             </div>
             <div class="position-wrap">
                 {% if board.picture2 %}
@@ -59,7 +61,7 @@
                 {% if board.picture4 %}
                 <div class="position"></div>
                 {% endif %}
-                {% if board.cture5 %}
+                {% if board.picture5 %}
                 <div class="position"></div>
                 {% endif %}
                 {% if board.picture6 %}

@@ -460,12 +460,10 @@ class HomeView(LoginRequiredMixin, TemplateView):
             board.delete()
             return JsonResponse({'success': True})
         if request.POST.get('action_type') == 'setting_board_edit_action':
-            print('====================')
             board_id = request.POST.get('board_id')
             board = Boards.objects.get(id=board_id)
             json_data = dict()
             len_picture = 0
-            print('=============================')
             for i in range(1, 11):
                 picture = 'board.picture' + str(i)
                 picture_url = 'board.picture' + str(i) + '.url'
@@ -478,7 +476,17 @@ class HomeView(LoginRequiredMixin, TemplateView):
             json_data['description'] = board.description
             print(json_data['picture1_url'])
             return JsonResponse(json_data)
+        if request.POST.get('action_type') == 'setting_board_edit_submit':
+            board_id = request.POST.get('board_id')
+            board = Boards.objects.get(id=board_id)
+            description = request.POST.get('description')
+            board.description = description
+            board.save()
+            json_data = dict()
+            json_data['description'] = description
+            return JsonResponse(json_data)
         return redirect('sns:home')
+        
 
 
     def boards_to_dictionary(self, boards):
