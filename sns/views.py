@@ -185,7 +185,7 @@ class CreateProfileView(LoginRequiredMixin, TemplateView):
         user = Users.objects.get(id=self.request.user.id)
         if UserProfiles.objects.filter(user=user):
             return redirect('sns:home')
-        return render(self.request, 'sns/home.html')
+        return render(self.request, 'sns/create_profile.html')
 
     def post(self, request, *args, **kwargs):
         user_icon = request.FILES.get('user_icon')

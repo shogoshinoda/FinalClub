@@ -756,6 +756,10 @@ textarea {
     width: 100%;
     text-align: center;
 }
+.workspace > img {
+    width: 0;
+    height: 0;
+}
 .workspace > span {
     font-size: 3rem;
     position: relative;
@@ -788,6 +792,20 @@ textarea {
     justify-content: space-between;
     border-bottom: 1px solid rgb(219, 219, 219);
 }
+.description-input-text {
+    text-align: center;
+    padding-top: 60px;
+}
+textarea#description-input {
+    display: block;
+    border: 2px solid rgb(214, 214, 214);
+    border-radius: 10px;
+    width: 400px;
+    margin: 20px auto;
+    height: 400px;
+}
+
+
 
 
 .notification-message {

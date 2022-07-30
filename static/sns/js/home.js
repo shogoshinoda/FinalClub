@@ -84,8 +84,9 @@ window.addEventListener('DOMContentLoaded', function (){
     var work_space = document.querySelectorAll(".workspace img")
     var csrf = document.getElementsByName("csrfmiddlewaretoken")
     var next_page = document.querySelector('.next-page')
-    var croppers = []
+    var croppers = [[],[],[],[],[],[],[],[],[],[]]
     var fd = new FormData()
+    var picture_number = 0;
 
     // 写真を投稿をクリック
     photo_type.addEventListener('click', function () {
@@ -100,6 +101,10 @@ window.addEventListener('DOMContentLoaded', function (){
             var input_button = e.target.nextElementSibling
             input_button.click()
             input_button.onchange = () => {
+                if(croppers[picture_number][0]){
+                    croppers[picture_number][0].destroy();
+                    croppers[picture_number] = []
+                }
                 next_page.classList.remove("none")
                 e.target.parentNode.parentNode.previousElementSibling.children[1].classList.add('none')
                 var file = input_button.files[0]
@@ -129,7 +134,8 @@ window.addEventListener('DOMContentLoaded', function (){
                         }
                     }
                 }
-                croppers.push(new Cropper(picture_workspace, options))
+                croppers[picture_number].push(new Cropper(picture_workspace, options))
+                
             }
         }
         // プラスボタンを押された時leftを-100％にする
@@ -137,12 +143,14 @@ window.addEventListener('DOMContentLoaded', function (){
             let styleLeft = crop_images_box.style.left;
             let left = Number(styleLeft.replace(/%/g, ""));
             crop_images_box.style.left = (left-100) + "%";
+            picture_number += 1
         }
         // backボタンを押された時leftを＋100％にする
         if(e.target.classList.value === 'input-back') {
             let styleLeft = crop_images_box.style.left;
             let left = Number(styleLeft.replace(/%/g, ""));
             crop_images_box.style.left = (left+100) + "%";
+            picture_number -= 1
         }
     })
                 
@@ -179,11 +187,14 @@ window.addEventListener('DOMContentLoaded', function (){
 
         // 写真情報をfdについかする
         var i
+        console.log(croppers)
         for(i = 0; i < croppers.length; i++){
             let picture = 'picture' + (i+1)
-            croppers[i].getCroppedCanvas().toBlob((blob) => {
-                fd.append(picture, blob, picture+'.png')
-            })
+            if(croppers[i][0]){
+                croppers[i][0].getCroppedCanvas().toBlob((blob) => {
+                    fd.append(picture, blob, picture+'.png')
+                })
+            }
         }
         fd.append('csrfmiddlewaretoken', csrf[0].value)
         fd.append('action_type', 'board')
@@ -346,12 +357,14 @@ window.addEventListener('DOMContentLoaded', function (){
                     document.body.classList.remove("overflow-hidden")
                     var k
                     for(k = 0; k < croppers.length; k ++){
-                        croppers[k].destroy()
+                        if(croppers[k][0]){
+                            croppers[k][0].destroy()
+                        }
                     }
                     for(k = 0; k < work_space.length; k++){
                         work_space[k].src = ''
                     }
-                    croppers = []
+                    croppers = [[],[],[],[],[],[],[],[],[],[]]
                     var next_page = document.querySelector('.next-page')
                     next_page.classList.add('none')
                     var description_input = document.getElementById("description-input")
